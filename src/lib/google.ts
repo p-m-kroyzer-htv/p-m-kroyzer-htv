@@ -7,6 +7,9 @@ export const GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 
 export class GoogleAuthRevoked extends Error {}
 
+/** Cookie that holds the OAuth state between the consent screen and the callback. */
+export const STATE_COOKIE = "google_oauth_state";
+
 export function redirectUri(): string {
   return `${env("APP_URL").replace(/\/$/, "")}/api/auth/google/callback`;
 }

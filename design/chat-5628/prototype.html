@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e4a57">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>מנויומטר</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{
+  --bg:oklch(0.978 0.004 95);
+  --surface:oklch(0.995 0.002 95);
+  --sunk:oklch(0.962 0.005 100);
+  --ink:oklch(0.23 0.02 215);
+  --ink2:oklch(0.43 0.016 215);
+  --ink3:oklch(0.58 0.012 215);
+  --line:oklch(0.918 0.006 110);
+  --line2:oklch(0.87 0.008 110);
+  --accent:oklch(0.37 0.07 215);
+  --accent-2:oklch(0.52 0.1 205);
+  --accent-soft:oklch(0.968 0.011 205);
+  --daily:oklch(0.46 0.12 152);  --daily-bg:oklch(0.958 0.04 152);
+  --some:oklch(0.46 0.06 245);   --some-bg:oklch(0.958 0.02 245);
+  --rare:oklch(0.47 0.11 72);    --rare-bg:oklch(0.955 0.065 88);
+  --none:oklch(0.48 0.17 38);    --none-bg:oklch(0.952 0.04 45);
+  --unk:oklch(0.5 0.01 215);     --unk-bg:oklch(0.955 0.004 215);
+  /* leak meter */
+  --m-none:oklch(0.52 0.18 38);
+  --m-rare:oklch(0.74 0.13 58);
+  --m-some:oklch(0.8 0.045 205);
+  --m-daily:oklch(0.37 0.07 215);
+  --m-unk:oklch(0.86 0.006 215);
+  --r:10px;
+  --shadow:0 1px 0 oklch(1 0 0 / .8) inset, 0 1px 2px oklch(0.3 0.02 215 / .05);
+  --font:'Heebo','Assistant',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
+  --tab-h:58px;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,select,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+[hidden]{display:none!important}
+bdi,.ltr{unicode-bidi:isolate}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+.cur{font-size:.82em;font-weight:500;margin-inline-start:.18em}
+.wrap{max-width:1400px;margin-inline:auto;padding-inline:max(32px,var(--sal)) max(32px,var(--sar))}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ===== demo chrome (NOT part of the design) ===== */
+.demo{background:oklch(0.93 0.01 215);border-bottom:2px dashed oklch(0.6 0.05 215);padding:8px 14px;font-size:12px;color:var(--ink2)}
+.demo .dh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.demo .tag{font-weight:800;color:var(--accent);background:var(--surface);border:1px dashed var(--accent);border-radius:5px;padding:0 8px;white-space:nowrap}
+.demo .grp{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.demo .grp>b{font-weight:600;color:var(--ink3);margin-inline-end:2px}
+.demo button{border:1px solid var(--line2);background:var(--surface);border-radius:6px;padding:2px 9px;font-size:12px}
+.demo button[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.demo summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.inst{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end;padding:14px 4px 6px}
+.inst figure{display:grid;gap:6px;justify-items:center;font-size:11.5px}
+.inst img{display:block;max-width:100%}
+.mask{width:192px;height:192px;display:grid;place-items:center;background:oklch(0.88 0.01 215);position:relative}
+.mask img{width:192px;height:192px;clip-path:circle(50%)}
+.mask.sq img{clip-path:inset(0 round 22%)}
+.mask::after{content:"";position:absolute;width:154px;height:154px;border-radius:50%;border:1px dashed #fff;pointer-events:none}
+.swatch{width:60px;height:60px;border-radius:10px;background:#1e4a57;border:1px solid var(--line2)}
+
+/* ===== app bar / nav ===== */
+.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;padding-top:var(--sat)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;text-decoration:none}
+.brand svg{width:28px;height:28px}
+.nav{display:flex;gap:4px;flex:1}
+.nav a{padding:7px 14px;border-radius:8px;text-decoration:none;color:var(--ink2);font-weight:500}
+.nav a:hover{background:var(--sunk)}
+.nav a[aria-current]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.scan{display:flex;align-items:center;gap:14px}
+.scan-st{display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:13px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--daily);box-shadow:0 0 0 0 oklch(0.6 0.15 152/.5);animation:pulse 2.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.logout{color:var(--ink3);font-size:13px;text-decoration:none}
+.logout:hover{color:var(--ink)}
+.backbtn{display:none;width:40px;height:40px;border-radius:10px;border:0;background:transparent;place-items:center;margin-inline-start:-8px}
+.backbtn svg{width:20px;height:20px}
+.appttl{display:none;font-weight:800;font-size:17px}
+.tabbar{display:none}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:7px 14px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);transition:background .15s,border-color .15s,transform .1s;text-decoration:none;min-height:36px}
+.btn:hover{background:var(--sunk)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:15px;height:15px;flex:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:oklch(0.98 0.005 200)}
+.btn.primary:hover{background:oklch(0.31 0.065 215)}
+.btn.ember{background:var(--none);border-color:var(--none);color:oklch(0.99 0.01 60)}
+.btn.ember:hover{background:oklch(0.43 0.16 38)}
+.btn.ghost{border-color:transparent;background:transparent;box-shadow:none;color:var(--ink2)}
+.btn.lg{min-height:46px;font-size:15px;padding-inline:20px;border-radius:10px}
+.btn.danger-o{color:var(--none);border-color:oklch(0.85 0.07 45)}
+.btn.danger-o:hover{background:var(--none-bg)}
+
+/* page head */
+.head{display:flex;align-items:flex-end;justify-content:space-between;padding-block:30px 20px;gap:20px}
+h1{font-size:28px;font-weight:800;line-height:1.15}
+.head p{color:var(--ink2);margin-top:4px}
+.today{color:var(--ink3);font-size:13px}
+
+/* ===== leak card ===== */
+.kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
+.kpi .lbl{font-size:13px;color:var(--ink2);font-weight:500}
+.kpi .val{font-size:30px;font-weight:700;line-height:1.1;margin-top:6px}
+.kpi .sub{color:var(--ink3);font-size:12.5px}
+.kpi .sp{flex:1}
+.leak{background:linear-gradient(115deg,oklch(0.968 0.035 52),oklch(0.985 0.012 70) 70%);border:1px solid oklch(0.86 0.06 50);border-radius:var(--r);position:relative;overflow:hidden;padding:20px 24px 18px;box-shadow:var(--shadow)}
+.leak::after{content:"";position:absolute;inset-inline-end:-40px;top:-50px;width:200px;height:200px;border-radius:50%;border:1px solid oklch(0.85 0.07 50/.6);box-shadow:0 0 0 22px oklch(0.85 0.07 50/.18),0 0 0 44px oklch(0.85 0.07 50/.1);pointer-events:none}
+.leak>*{position:relative;z-index:1}
+.leak-top{display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.leak .lbl{color:var(--none);font-weight:700;display:flex;gap:8px;align-items:center}
+.leak .lbl i{width:7px;height:7px;border-radius:2px;background:var(--none);display:inline-block;transform:rotate(45deg)}
+.leak .val{font-size:56px;font-weight:800;color:oklch(0.4 0.16 38);line-height:1.05;margin-top:2px}
+.leak .val .per{font-size:15px;font-weight:500;color:var(--ink2);margin-inline-start:8px}
+.leak .sub{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.leak .sub b{color:var(--ink);font-weight:700}
+.leak .cta{position:relative;z-index:2}
+.mwrap{margin-top:18px}
+.meter{display:flex;gap:8px;direction:rtl}
+.mgrp{display:flex;gap:2px;padding-top:26px;position:relative;min-width:0}
+.mgrp::before{content:"";position:absolute;inset-inline:0;top:17px;height:6px;border:1.5px solid var(--bc);border-bottom:0;border-radius:4px 4px 0 0}
+.mgrp .mcap{position:absolute;inset-inline-start:0;top:0;font-size:12px;font-weight:700;color:var(--bc);background:var(--cbg,transparent);padding-inline-end:8px;white-space:nowrap;line-height:16px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.mgrp.lk{--bc:var(--none);--cbg:oklch(0.972 0.03 55)}
+.mgrp.ok{--bc:var(--line2);--cbg:oklch(0.98 0.012 68)}
+.mgrp.ok .mcap{color:var(--ink3);font-weight:600}
+.mseg{flex:var(--w) 1 0;min-width:5px;height:36px;border:0;padding:0 8px;border-radius:3px;display:flex;align-items:center;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;transform-origin:right;animation:grow .9s cubic-bezier(.2,.7,.2,1) backwards .25s;transition:filter .15s,transform .15s}
+.mseg:hover,.mseg:focus-visible{filter:brightness(.94);transform:translateY(-2px)}
+.mseg.s-none{background:var(--m-none);color:#fff}
+.mseg.s-rare{background:var(--m-rare);color:oklch(0.25 0.06 55)}
+.mseg.s-some{background:var(--m-some);color:oklch(0.28 0.05 215)}
+.mseg.s-daily{background:var(--m-daily);color:#fff}
+.mseg.s-unk{background:repeating-linear-gradient(135deg,var(--m-unk) 0 4px,oklch(0.92 0.005 215) 4px 8px);color:var(--ink2)}
+@keyframes grow{from{transform:scaleX(0)}}
+.mseg .nm{overflow:hidden;text-overflow:ellipsis}
+.mleg{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:12.5px;color:var(--ink2)}
+.mleg span{display:inline-flex;align-items:center;gap:6px}
+.mleg i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+.mleg i.s-none{background:var(--m-none)}.mleg i.s-rare{background:var(--m-rare)}.mleg i.s-some{background:var(--m-some)}.mleg i.s-daily{background:var(--m-daily)}.mleg i.s-unk{background:repeating-linear-gradient(135deg,var(--m-unk) 0 2px,oklch(0.93 0.005 215) 2px 4px);border:1px solid var(--line2)}
+.mleg b{font-weight:700;color:var(--ink)}
+.mnote{margin-top:10px;font-size:12.5px;color:var(--ink2);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mnote button{all:unset;cursor:pointer;color:var(--accent);font-weight:600;border-bottom:1px solid oklch(0.8 0.04 205)}
+
+/* banner */
+.banner{display:flex;gap:12px;align-items:center;background:var(--rare-bg);border:1px solid oklch(0.88 0.07 85);color:oklch(0.36 0.09 70);border-radius:var(--r);padding:10px 14px;font-size:13px;margin-top:14px}
+.banner svg{width:17px;height:17px;flex:none}
+.banner a{margin-inline-start:auto;font-weight:700;text-decoration:none;border-bottom:1px solid currentColor;white-space:nowrap}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.sec{margin-top:22px}
+.card-h{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.card-h h2{font-size:15px;font-weight:700}
+.card-h .meta{color:var(--ink2);font-size:13px}
+
+/* renewals */
+.ren{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:14px 16px}
+.rn{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);text-align:start;width:100%;transition:border-color .15s}
+.rn:hover{border-color:var(--accent-2)}
+.rn .d{width:42px;flex:none;text-align:center;line-height:1.1;background:var(--sunk);border-radius:7px;padding:5px 0}
+.rn .d b{display:block;font-size:17px;font-weight:800}
+.rn .d small{font-size:11px;color:var(--ink3)}
+.rn.soon .d{background:var(--accent-soft);color:var(--accent)}
+.rn.warn .d{background:var(--none-bg);color:var(--none)}
+.rn .t{min-width:0;flex:1}
+.rn .t b{display:block;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn .t small{color:var(--ink2);font-size:12px}
+
+/* toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--sunk);padding:3px;border-radius:9px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:7px;font-weight:500;color:var(--ink2);font-size:13px;min-height:30px}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 2px oklch(0.3 0.02 215/.12)}
+.seg .ct{color:var(--ink3);margin-inline-start:4px;font-weight:400}
+.sel{position:relative;flex:none}
+.sel select{appearance:none;border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:6px 12px;padding-inline-end:30px;font-size:13px;font-weight:500;box-shadow:var(--shadow);cursor:pointer;min-height:34px}
+.sel select.act{border-color:var(--accent-2);background:var(--accent-soft);color:var(--accent);font-weight:700}
+.sel::after{content:"";position:absolute;inset-inline-end:11px;top:50%;width:6px;height:6px;border-inline-end:1.5px solid var(--ink3);border-bottom:1.5px solid var(--ink3);rotate:45deg;translate:0 -70%;pointer-events:none}
+.tb-count{margin-inline-start:auto;color:var(--ink3);font-size:12.5px}
+.tbfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.clear{all:unset;cursor:pointer;color:var(--none);font-weight:700;font-size:12.5px;border-bottom:1px solid oklch(0.85 0.07 45)}
+
+/* table (wide desktop only) */
+table.t{width:100%;border-collapse:collapse;display:none}
+table.t thead th{text-align:start;font-size:12px;font-weight:600;color:var(--ink3);padding:10px 14px;border-bottom:1px solid var(--line);background:oklch(0.985 0.003 95);white-space:nowrap}
+table.t th.r,table.t td.r{text-align:end}
+table.t tbody td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+table.t tbody tr:last-child td{border-bottom:0}
+table.t tbody tr{cursor:pointer;transition:background .12s}
+table.t tbody tr:hover{background:oklch(0.985 0.004 100)}
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.srow{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"m main cost" "m ren ren" "m use acct";column-gap:12px;row-gap:6px;padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s;align-items:center}
+.srow:hover{background:oklch(0.985 0.004 100)}
+.srow .mono{grid-area:m;align-self:start}
+.srow .main{grid-area:main;min-width:0}
+.srow .cost{grid-area:cost}
+.srow .rn2{grid-area:ren;font-size:13px;color:var(--ink2)}
+.srow .rn2 em{font-style:normal;color:var(--accent);font-weight:600}
+.srow .use{grid-area:use;justify-self:start}
+.srow .acct{grid-area:acct;justify-self:end}
+.svc{display:flex;align-items:center;gap:12px}
+.mono{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none;background:oklch(0.94 0.045 var(--h));color:oklch(0.38 0.12 var(--h));border:1px solid oklch(0.88 0.06 var(--h))}
+.svc b,.main b{display:block;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc small,.main small{color:var(--ink3);font-size:12px;display:block;line-height:1.3}
+.mcost{font-weight:700;font-size:15px;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.mcost small{font-weight:500;color:var(--ink3);font-size:11.5px}
+.mcost i{display:block;height:3px;width:var(--w);min-width:3px;border-radius:2px;background:var(--line2)}
+.mcost i.w{background:var(--none)}
+.nop{font-size:12.5px;font-weight:600;color:var(--rare);background:var(--rare-bg);border-radius:6px;padding:1px 8px}
+.dt{font-variant-numeric:tabular-nums;color:var(--ink2)}
+.dt small{display:block;color:var(--ink3);font-size:11.5px;line-height:1.3}
+.dt.soon small{color:var(--accent);font-weight:600}
+.acct{font-family:var(--mono);font-size:11.5px;color:var(--ink2);direction:ltr;unicode-bidi:isolate;display:inline-flex;gap:6px;align-items:center}
+.acct::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ac,var(--accent-2));flex:none}
+.acct.b2{--ac:oklch(0.7 0.13 70)}
+.cancelled-tag{color:var(--ink3);font-size:12.5px}
+.rows .srow:nth-last-child(-n+1){border-bottom:0}
+
+/* usage chip */
+.use{position:relative;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:3px 10px;border:1px solid transparent;background:var(--ub);color:var(--uc);font-weight:600;font-size:12.5px;cursor:pointer;min-height:28px}
+.use:hover{border-color:var(--uc)}
+.use:focus-within{outline:2px solid var(--accent-2);outline-offset:2px}
+.use select{appearance:none;border:0;background:transparent;color:inherit;font-weight:inherit;font-size:inherit;cursor:pointer;padding:0;padding-inline-end:15px;outline:0;min-width:70px}
+.use::after{content:"";position:absolute;inset-inline-end:10px;top:50%;width:5px;height:5px;border-inline-end:1.5px solid currentColor;border-bottom:1.5px solid currentColor;rotate:45deg;translate:0 -70%;pointer-events:none}
+.use select option{color:var(--ink);background:#fff}
+[data-s=daily]{--uc:var(--daily);--ub:var(--daily-bg)}
+[data-s=some]{--uc:var(--some);--ub:var(--some-bg)}
+[data-s=rare]{--uc:var(--rare);--ub:var(--rare-bg)}
+[data-s=none]{--uc:var(--none);--ub:var(--none-bg)}
+[data-s=unk]{--uc:var(--unk);--ub:var(--unk-bg)}
+.bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
+.bars span{width:3px;border-radius:1px;background:currentColor;opacity:.22}
+.bars span:nth-child(1){height:4px}.bars span:nth-child(2){height:6px}.bars span:nth-child(3){height:8.5px}.bars span:nth-child(4){height:11px}
+[data-s=daily] .bars span{opacity:1}
+[data-s=some] .bars span:nth-child(-n+3){opacity:1}
+[data-s=rare] .bars span:nth-child(1){opacity:1}
+.tfoot{display:flex;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--line);background:oklch(0.985 0.003 95);color:var(--ink2);font-size:13px;border-radius:0 0 var(--r) var(--r);gap:10px;flex-wrap:wrap}
+.tfoot b{color:var(--ink)}
+.none-found{padding:30px;text-align:center;color:var(--ink2)}
+
+/* empty */
+.empty{margin-top:22px;border:1.5px dashed var(--line2);border-radius:var(--r);background:oklch(0.99 0.003 95);display:flex;align-items:center;gap:24px;padding:20px 24px;position:relative}
+.empty .state-tag{position:absolute;inset-block-start:-10px;inset-inline-start:20px;background:var(--bg)}
+.empty svg.ill{width:76px;height:76px;flex:none}
+.empty h3{font-size:17px;font-weight:700}
+.empty p{color:var(--ink2);max-width:62ch;margin-top:2px}
+.empty .acts{margin-inline-start:auto}
+.state-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ink3);background:var(--sunk);border:1px dashed var(--line2);border-radius:5px;padding:0 7px}
+.zero{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.zero .kpi .val{color:var(--ink3)}
+
+/* gbtn */
+.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid oklch(0.82 0.005 110);border-radius:8px;padding:0 18px 0 16px;min-height:44px;font-weight:600;font-size:14.5px;color:oklch(0.3 0.01 215);box-shadow:0 1px 2px oklch(0.3 0.02 215/.1);font-family:var(--font)}
+.gbtn:hover{background:oklch(0.985 0.002 95);box-shadow:0 1px 4px oklch(0.3 0.02 215/.18)}
+.gbtn svg{width:20px;height:20px}
+
+/* ===== detail ===== */
+.crumb{display:flex;align-items:center;gap:8px;color:var(--ink3);font-size:13px;padding-top:22px}
+.crumb a{text-decoration:none;color:var(--accent);font-weight:600}
+.dr{margin-top:12px;overflow:hidden}
+.dr-h{display:flex;align-items:center;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line);background:linear-gradient(to bottom,oklch(0.985 0.004 100),var(--surface));flex-wrap:wrap}
+.dr-h .mono{width:52px;height:52px;font-size:19px;border-radius:13px}
+.dr-h h2{font-size:22px;font-weight:800;line-height:1.2}
+.dr-h .sub{color:var(--ink2);font-size:13px}
+.dr-h .sp{flex:1}
+.stchip{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;border-radius:999px;padding:3px 11px;background:var(--daily-bg);color:var(--daily)}
+.stchip.c{background:var(--unk-bg);color:var(--unk)}
+.stchip.h{background:var(--sunk);color:var(--ink3);border:1px dashed var(--line2)}
+.dr-grid{display:grid;grid-template-columns:5fr 7fr}
+.dr-col{padding:20px 22px;min-width:0}
+.dr-col+.dr-col{border-inline-start:1px solid var(--line)}
+.h3{font-size:12.5px;font-weight:700;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:20px}
+.facts div{background:var(--surface);padding:10px 12px;min-width:0}
+.facts small{display:block;color:var(--ink3);font-size:11.5px}
+.facts b{font-size:15px;font-weight:700;display:block;overflow-wrap:anywhere}
+.facts b.sm{font-size:12.5px;font-family:var(--mono);font-weight:500}
+.facts .wide{grid-column:1/-1}
+.alert{display:flex;gap:10px;align-items:flex-start;background:var(--rare-bg);border:1px solid oklch(0.88 0.07 85);color:oklch(0.38 0.09 70);border-radius:9px;padding:9px 12px;font-size:13px;margin-bottom:20px}
+.alert svg{width:16px;height:16px;flex:none;margin-top:3px}
+.useseg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:20px}
+.useseg button{border:1px solid var(--line2);background:var(--surface);border-radius:9px;padding:9px 6px;font-weight:600;font-size:13px;color:var(--ink2);min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1.2;transition:background .12s,border-color .12s}
+.useseg button:hover{border-color:var(--uc)}
+.useseg button[aria-pressed=true]{background:var(--ub);color:var(--uc);border-color:var(--uc);box-shadow:inset 0 0 0 1px var(--uc)}
+.hist{margin-bottom:20px}
+.hrow{display:grid;grid-template-columns:92px 1fr 1fr;gap:4px 12px;padding:10px 4px;border-bottom:1px dashed var(--line);align-items:center;font-size:13px}
+.hrow.hh{font-size:11.5px;font-weight:600;color:var(--ink3);border-bottom:1px solid var(--line);padding-block:6px}
+.hrow:last-child{border-bottom:0}
+.hrow .amt{font-weight:700}
+.hrow .amt small{display:block;font-weight:500;color:var(--ink3);font-size:11.5px}
+.hrow .subj{grid-column:2/-1;color:var(--ink2);font-size:12.5px;direction:ltr;text-align:end;unicode-bidi:isolate;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .tagp{font-size:11px;font-weight:700;color:var(--ink3);background:var(--sunk);border-radius:5px;padding:0 6px;margin-inline-start:6px}
+textarea{width:100%;min-height:78px;resize:vertical;border:1px solid var(--line2);border-radius:9px;padding:10px 12px;background:var(--surface);line-height:1.55;font-size:14px}
+textarea:focus,input:focus-visible{outline:2px solid var(--accent-2);outline-offset:1px;border-color:transparent}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.vendor{width:100%;margin-bottom:10px}
+.checked{font-weight:500;color:var(--ink3);font-size:12px}
+.alts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.alt{border:1px solid var(--line);border-radius:10px;padding:14px 15px;display:flex;flex-direction:column;gap:8px;background:var(--surface);position:relative;transition:border-color .15s,box-shadow .15s}
+.alt:hover{border-color:var(--accent-2);box-shadow:0 6px 18px -10px oklch(0.4 0.08 210/.35)}
+.alt.best{border-color:oklch(0.78 0.08 160);background:linear-gradient(to bottom,oklch(0.975 0.025 160),var(--surface) 60%)}
+.alt-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.alt-h b{font-size:15px;font-weight:700;line-height:1.25;display:block}
+.atype{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;margin-top:4px;background:var(--sunk);color:var(--ink2)}
+.atype.t-free{background:var(--daily-bg);color:var(--daily)}
+.atype.t-cheap{background:var(--accent-soft);color:var(--accent)}
+.atype.t-comp{background:var(--some-bg);color:var(--some)}
+.atype.t-incl{background:var(--daily-bg);color:var(--daily)}
+.atype.t-cancel{background:var(--none-bg);color:var(--none)}
+.alt-p{font-weight:700;font-size:14px;text-align:end;white-space:nowrap}
+.alt-p small{display:block;font-weight:500;color:var(--ink3);font-size:11.5px}
+.save{display:inline-block;align-self:flex-start;font-size:12.5px;font-weight:700;color:var(--daily);background:var(--daily-bg);border-radius:6px;padding:2px 8px}
+.alt p{font-size:13px;color:var(--ink2);line-height:1.5}
+.alt .give{border-top:1px dashed var(--line);padding-top:8px;font-size:12.5px;color:var(--ink2)}
+.alt .give em{font-style:normal;font-weight:700;color:var(--ink3);margin-inline-end:4px}
+.alt a{margin-top:auto;font-size:12.5px;font-weight:600;color:var(--accent);text-decoration:none;display:inline-flex;gap:5px;align-items:center;min-height:28px}
+.alt a:hover{text-decoration:underline}
+.alt a svg,.vendor svg{width:14px;height:14px;flex:none}
+.facts .l{grid-column:span 2}
+.bestlbl{position:absolute;inset-block-start:-9px;inset-inline-start:14px;background:var(--daily);color:#fff;font-size:11px;font-weight:700;padding:1px 8px;border-radius:5px}
+.altbox{border:1px dashed var(--line2);border-radius:10px;padding:16px;background:oklch(0.985 0.003 95)}
+.altbox.idle{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.altbox.idle p{flex:1;min-width:200px;color:var(--ink2);font-size:13px}
+.altbox.err{border-style:solid;border-color:oklch(0.86 0.06 70);background:var(--rare-bg);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.altbox.err p{flex:1;min-width:200px;color:oklch(0.36 0.09 70);font-weight:600}
+.ld-top{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13.5px;margin-bottom:10px;flex-wrap:wrap}
+.ld-top small{color:var(--ink3);font-weight:500}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--accent);animation:sp .9s linear infinite}
+@keyframes sp{to{rotate:360deg}}
+.prog{height:4px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.prog i{display:block;height:100%;width:var(--pp,10%);background:linear-gradient(to left,var(--accent-2),var(--accent));border-radius:3px;transition:width .4s linear}
+.sk-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sk{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:12px;display:grid;gap:7px}
+.sk i{display:block;height:9px;border-radius:5px;background:linear-gradient(100deg,var(--sunk) 30%,oklch(0.985 0.003 100) 50%,var(--sunk) 70%) 100% 0/220% 100%;animation:sh 1.4s linear infinite}
+@keyframes sh{to{background-position:-120% 0}}
+.sk i:nth-child(1){width:46%;height:12px}.sk i:nth-child(3){width:72%}
+
+/* ===== inboxes ===== */
+.ibx{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.ib{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.ib-h{display:flex;gap:14px;align-items:center}
+.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--accent-2);flex:none}
+.av.b2{background:oklch(0.62 0.13 70)}
+.ib-h .em{font-family:var(--mono);font-size:14px;font-weight:500;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere}
+.ib-h small{color:var(--ink3);display:block;font-size:12px}
+.ib-st{margin-inline-start:auto}
+.ib-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.ib-facts div{background:var(--surface);padding:9px 12px}
+.ib-facts small{display:block;color:var(--ink3);font-size:11.5px}
+.ib-facts b{font-weight:700}
+.ib .acts{margin:0}
+.ib.bad{border-color:oklch(0.86 0.06 70)}
+.scanp{margin-top:14px;padding:18px 20px;border-color:var(--accent-2)}
+.scanp .big{font-size:17px;font-weight:700;margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.scanp .prog{height:8px;margin-bottom:10px}
+.scanp .st{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;color:var(--ink2);font-size:13.5px}
+.scanp .st b{color:var(--ink);font-weight:700}
+
+/* login */
+.login{min-height:calc(100dvh - 60px);display:grid;place-items:center;padding:24px 18px calc(24px + var(--sab));background:radial-gradient(60% 50% at 50% 0,oklch(0.96 0.025 205),transparent),var(--bg)}
+.lcard{width:min(400px,100%);padding:30px 28px 26px;box-shadow:0 20px 50px -24px oklch(0.3 0.05 215/.3),var(--shadow)}
+.lcard .lg{width:56px;height:56px;border-radius:15px;display:block;margin-bottom:18px}
+.lcard h1{font-size:26px}
+.lcard p{color:var(--ink2);margin-top:4px;margin-bottom:22px}
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:13px}
+.pw{position:relative}
+.pw input{width:100%;height:48px;border:1px solid var(--line2);border-radius:10px;padding-inline:14px 46px;background:var(--surface);font-size:16px;direction:ltr;text-align:start}
+.pw button{position:absolute;inset-inline-end:4px;top:4px;width:40px;height:40px;border:0;background:transparent;border-radius:8px;display:grid;place-items:center;color:var(--ink3)}
+.pw svg{width:19px;height:19px}
+.lcard .foot{margin-top:16px;font-size:12px;color:var(--ink3);text-align:center}
+
+/* dialog, toast */
+.ov{position:fixed;inset:0;background:oklch(0.2 0.03 215/.45);z-index:60;display:grid;place-items:center;padding:20px;animation:fi .2s both}
+@keyframes fi{from{opacity:0}}
+.dlg{background:var(--surface);border-radius:14px;width:min(420px,100%);padding:22px;box-shadow:0 30px 70px -20px oklch(0.2 0.04 215/.5)}
+.dlg h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.dlg p{color:var(--ink2);font-size:14px}
+.dlg .acts{margin-top:18px;justify-content:flex-end}
+.toast{position:fixed;inset-inline:0;bottom:calc(var(--sab) + 24px);display:flex;justify-content:center;z-index:70;pointer-events:none}
+.toast span{background:var(--ink);color:#fff;border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:600;box-shadow:0 10px 30px -10px #0006;animation:rv .3s both}
+footer{padding:30px 0 50px;color:var(--ink3);font-size:12.5px;text-align:center}
+
+@media (min-width:1100px){
+  table.t{display:table}
+  .rows{display:none}
+}
+@media (max-width:1099px){
+  .wrap{padding-inline:max(20px,var(--sal)) max(20px,var(--sar))}
+  .dr-grid{grid-template-columns:1fr}
+  .dr-col+.dr-col{border-inline-start:0;border-top:1px solid var(--line)}
+}
+@media (max-width:860px){
+  .rows{grid-template-columns:1fr}
+  .ibx{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  body{font-size:14px;padding-bottom:calc(var(--tab-h) + var(--sab))}
+  .wrap{padding-inline:max(14px,var(--sal)) max(14px,var(--sar))}
+  .top .wrap{height:52px;gap:10px}
+  .nav,.logout,.scan-st span.t,.today{display:none}
+  .scan{margin-inline-start:auto;gap:10px}
+  .scan-st{font-size:12px}
+  .btn.scanb{padding:6px 12px}
+  body.sub-view .brand,body.sub-view .scan{display:none}
+  body.sub-view .backbtn,body.sub-view .appttl{display:grid}
+  body.sub-view .appttl{display:block;flex:1}
+  .head{padding-block:16px 12px}
+  h1{font-size:23px}
+  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;inset-inline:0;bottom:0;z-index:40;background:oklch(0.995 0.002 95/.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px max(8px,var(--sal)) calc(6px + var(--sab)) max(8px,var(--sar))}
+  .tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--ink3);font-size:11.5px;font-weight:600;padding:5px 0;border-radius:10px;min-height:46px}
+  .tabbar a svg{width:23px;height:23px}
+  .tabbar a[aria-current]{color:var(--accent)}
+  .tabbar a[aria-current] svg{fill:oklch(0.9 0.04 205 / .6)}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:14px}
+  .kpi .val{font-size:22px}
+  .kpi.k3{grid-column:1/-1}
+  .leak{padding:16px 14px 14px}
+  .leak .val{font-size:48px}
+  .leak .cta{width:100%}
+  .leak-top{gap:12px}
+  .mseg{height:32px;padding:0 5px;font-size:10.5px}
+  .mseg .nm.l1{display:none}
+  .mgrp{padding-top:24px}
+  .mgrp .mcap{font-size:11.5px}
+  .mleg{gap:6px 14px;font-size:12px}
+  .ren{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:12px 14px;gap:8px;scrollbar-width:none}
+  .rn{width:210px;flex:none;scroll-snap-align:start}
+  .card-h{padding:12px 14px}
+  .toolbar{padding:10px 12px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .toolbar>*{flex:none}
+  .tb-count{display:none}
+  .srow{padding:14px 12px}
+  .empty{flex-direction:column;align-items:flex-start}
+  .empty .acts{margin:0}
+  .zero{grid-template-columns:1fr 1fr}
+  .dr-h{padding:14px 14px}
+  .dr-h .mono{width:44px;height:44px;font-size:16px}
+  .dr-h h2{font-size:19px}
+  .dr-h .sp{display:none}
+  .dr-col{padding:16px 14px}
+  .crumb{display:none}
+  .dr{margin-top:12px}
+  .facts{grid-template-columns:1fr 1fr}
+  .facts .l{grid-column:1/-1}
+  .useseg{grid-template-columns:repeat(3,1fr)}
+  .alts,.sk-row{grid-template-columns:1fr}
+  .hrow{grid-template-columns:78px 1fr 1fr}
+  .acts .btn{flex:1 1 auto}
+  .ib{padding:16px 14px}
+  .ov{align-items:end;padding:0}
+  .dlg{border-radius:18px 18px 0 0;width:100%;padding:22px 18px calc(18px + var(--sab))}
+  .dlg .acts{flex-direction:column-reverse}
+  .dlg .acts .btn{min-height:46px}
+  .toast{bottom:calc(var(--tab-h) + var(--sab) + 14px)}
+  .demo .dh{gap:6px}
+}
+@media (max-width:380px){
+  .leak .val{font-size:42px}
+  .head h1{font-size:21px}
+  .useseg button{font-size:12.5px;padding-inline:3px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.rv{animation:rv .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rv{from{opacity:0;transform:translateY(8px)}}
+</style>
+</head>
+<body>
+
+<!-- DEMO CHROME: not part of the design -->
+<div class="demo" id="demo">
+  <div class="dh">
+    <span class="tag">הדגמה בלבד, לא חלק מהעיצוב</span>
+    <div class="grp" id="dScreens"><b>מסך</b></div>
+    <div class="grp" id="dStates"></div>
+  </div>
+  <details id="install" style="margin-top:6px">
+    <summary>התקנה: אייקון ו-theme-color</summary>
+    <div class="inst">
+      <figure><img src="icon.svg" width="512" height="512" alt="אייקון 512"><span>icon.svg, <bdi class="num">512</bdi></span></figure>
+      <figure><img src="icon.svg" width="192" height="192" alt="אייקון 192"><span>192</span></figure>
+      <figure><div class="mask"><img src="icon-maskable.svg" alt="maskable"></div><span>maskable, מעגל (Android)</span></figure>
+      <figure><div class="mask sq"><img src="icon-maskable.svg" alt="maskable"></div><span>maskable, ריבוע מעוגל (iOS)</span></figure>
+      <figure><div class="swatch"></div><span>theme-color <bdi class="num">#1e4a57</bdi></span></figure>
+    </div>
+  </details>
+</div>
+
+<!-- APP BAR -->
+<header class="top" id="top">
+  <div class="wrap">
+    <button class="backbtn" id="backBtn" aria-label="חזרה"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="rotate:180deg"><path d="M7 4l6 6-6 6"/></svg></button>
+    <span class="appttl" id="appTtl">מנוי</span>
+    <a class="brand" href="#dash">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="oklch(0.37 0.07 215)"/><path d="M7 15.5a7 7 0 1 1 7 7" fill="none" stroke="oklch(0.97 0.01 200)" stroke-width="2.2" stroke-linecap="round"/><circle cx="14" cy="14" r="2.4" fill="oklch(0.78 0.14 50)"/><path d="M5.2 14.2 7 15.9l1.9-1.7" fill="none" stroke="oklch(0.97 0.01 200)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      מנויומטר
+    </a>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <a href="#dash" data-nav="dash">מנויים</a>
+      <a href="#inboxes" data-nav="inboxes">תיבות Gmail</a>
+    </nav>
+    <div class="scan">
+      <span class="scan-st"><span class="pulse"></span><span class="t">נסרק לאחרונה:</span> <b style="font-weight:600">היום <bdi class="num">08:14</bdi></b></span>
+      <button class="btn scanb" id="topScan"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.7-4"/><path d="M13.5 2.5v3h-3"/></svg>סרוק עכשיו</button>
+      <a class="logout" href="#login">יציאה</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== SCREEN: dashboard ===== -->
+<main class="screen" id="s-dash">
+ <div class="wrap">
+  <div class="head rv">
+    <div><h1>לוח מנויים</h1><p id="headLine"></p></div>
+    <div class="today">היום, <bdi class="num">19.10.2026</bdi> &nbsp;·&nbsp; שער לחישוב <bdi class="num">$1 = 3.10 ₪</bdi></div>
+  </div>
+  <div id="bannerSlot"></div>
+
+  <section class="leak rv" style="--i:1;margin-top:14px" aria-label="דליפה">
+    <div class="leak-top">
+      <div>
+        <div class="lbl"><i></i>משלם על מה שלא בשימוש</div>
+        <div class="val"><bdi class="num"><span id="lkM"></span><span class="cur" style="font-size:.45em">₪</span></bdi><span class="per">לחודש</span></div>
+        <div class="sub"><b><bdi class="num"><span id="lkY"></span><span class="cur">₪</span></bdi> בשנה</b> על <span id="lkNames"></span></div>
+      </div>
+      <button class="btn ember cta" id="reviewBtn">סקור <span id="lkN"></span> מנויים<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="rotate:180deg"><path d="M6 3l5 5-5 5"/></svg></button>
+    </div>
+    <div class="mwrap">
+      <div class="meter" id="meter" role="img" aria-label="פילוח ההוצאה החודשית לפי רמת שימוש"></div>
+      <div class="mleg" id="mleg"></div>
+      <div class="mnote" id="mnote"></div>
+    </div>
+  </section>
+
+  <section class="kpis" aria-label="סיכום">
+    <div class="kpi rv" style="--i:2"><div class="lbl">סך עלות חודשית</div><div class="val"><bdi class="num"><span id="kM"></span><span class="cur" style="font-size:.55em">₪</span></bdi></div><div class="sub">כולל המרת דולר לפי 3.10</div></div>
+    <div class="kpi rv" style="--i:3"><div class="lbl">סך עלות שנתית</div><div class="val"><bdi class="num"><span id="kY"></span><span class="cur" style="font-size:.55em">₪</span></bdi></div><div class="sub">צפי ל-12 חודשים קדימה</div></div>
+    <div class="kpi k3 rv" style="--i:4"><div class="lbl">מנויים פעילים</div><div class="val" id="kN"></div><div class="sub" id="kSub"></div></div>
+  </section>
+
+  <section class="card sec rv" style="--i:5" aria-labelledby="rh">
+    <div class="card-h"><h2 id="rh">חידושים ב-30 הימים הקרובים</h2><span class="meta" id="renMeta"></span></div>
+    <div class="ren" id="ren"></div>
+  </section>
+
+  <section class="card sec rv" style="--i:6" aria-labelledby="lh">
+    <div class="card-h"><h2 id="lh">כל המנויים</h2><span class="meta" id="listMeta"></span></div>
+    <div class="toolbar">
+      <div class="seg" id="stSeg"></div>
+      <div class="sel"><select id="fInbox" aria-label="תיבה"></select></div>
+      <div class="sel"><select id="fCat" aria-label="קטגוריה"></select></div>
+      <div class="sel"><select id="fUse" aria-label="שימוש"></select></div>
+      <div class="sel"><select id="fSort" aria-label="מיון"></select></div>
+      <button class="clear" id="clearF" hidden>נקה סינון</button>
+      <span class="tb-count" id="tbCount"></span>
+    </div>
+    <div id="listBody"></div>
+    <div class="tfoot" id="tfoot"></div>
+  </section>
+ </div>
+</main>
+
+<!-- ===== SCREEN: empty ===== -->
+<main class="screen" id="s-empty">
+ <div class="wrap">
+  <div class="head rv"><div><h1>לוח מנויים</h1><p>עוד לא חוברה תיבת Gmail</p></div></div>
+  <section class="empty rv" style="--i:1" aria-label="מצב ריק">
+    <span class="state-tag">מצב ריק</span>
+    <svg class="ill" viewBox="0 0 76 76" fill="none" aria-hidden="true"><rect x="8" y="16" width="60" height="44" rx="9" fill="oklch(0.968 0.011 205)" stroke="oklch(0.37 0.07 215)" stroke-width="2"/><path d="M10 22l28 22 28-22" stroke="oklch(0.37 0.07 215)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="58" cy="54" r="11" fill="oklch(0.78 0.14 50)"/><path d="M58 48v12M52 54h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <div><h3>מתחילים בחיבור תיבת Gmail</h3><p>המערכת קוראת רק קבלות, חשבוניות והודעות חידוש, מוצאת את המנויים שלך ומראה כמה מהם אתה משלם בלי להשתמש. קריאה בלבד, אפשר לנתק בכל רגע.</p></div>
+    <div class="acts"><button class="gbtn" data-go="inboxes"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.5 5.8c4.4-4.1 7-10.1 7-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.100a24 24 0 0 0 0 21.600l7.9-6.100z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.800l-7.5-5.800c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.800l-7.9 6.100C6.5 42.6 14.6 48 24 48z"/></svg>חבר תיבת Gmail</button></div>
+  </section>
+  <section class="zero">
+    <div class="kpi"><div class="lbl">סך עלות חודשית</div><div class="val"><bdi class="num">0.00<span class="cur">₪</span></bdi></div></div>
+    <div class="kpi"><div class="lbl">סך עלות שנתית</div><div class="val"><bdi class="num">0.00<span class="cur">₪</span></bdi></div></div>
+    <div class="kpi"><div class="lbl">מנויים פעילים</div><div class="val">0</div></div>
+  </section>
+ </div>
+</main>
+
+<!-- ===== SCREEN: subscription ===== -->
+<main class="screen" id="s-sub"><div class="wrap" id="subBody"></div></main>
+
+<!-- ===== SCREEN: inboxes ===== -->
+<main class="screen" id="s-inboxes">
+ <div class="wrap">
+  <div class="head rv">
+    <div><h1>תיבות Gmail</h1><p>המערכת קוראת קבלות והודעות חידוש בלבד, בקריאה בלבד</p></div>
+    <button class="gbtn" id="connBtn"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.500z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.500H24v9h12.700c-.6 3-2.2 5.5-4.7 7.200l7.5 5.800c4.4-4.1 7-10.1 7-17.500z"/><path fill="#FBBC05" d="M10.5 28.700a14.5 14.5 0 0 1 0-9.400l-7.9-6.100a24 24 0 0 0 0 21.600l7.9-6.100z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.800l-7.5-5.800c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.800l-7.9 6.100C6.5 42.6 14.6 48 24 48z"/></svg>חבר תיבת Gmail</button>
+  </div>
+  <section class="card scanp rv" id="scanPanel" hidden style="--i:1" aria-live="polite">
+    <div class="big"><span class="spin"></span><span id="scTitle">סורק את התיבות</span></div>
+    <div class="prog"><i id="scBar"></i></div>
+    <div class="st"><span>נקראו <b><bdi class="num" id="scRead">0</bdi> מתוך <bdi class="num">340</bdi></b> מיילים</span><span>נמצאו <b><bdi class="num" id="scFound">0</bdi></b> מנויים</span></div>
+  </section>
+  <div class="ibx" id="ibx" style="margin-top:14px"></div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <button class="btn primary lg" id="scanBtn2"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.7-4"/><path d="M13.5 2.5v3h-3"/></svg>סרוק עכשיו</button>
+    <span style="color:var(--ink3);font-size:13px">סריקה אחרונה: היום <bdi class="num">08:14</bdi></span>
+  </div>
+ </div>
+</main>
+
+<!-- ===== SCREEN: login ===== -->
+<main class="screen" id="s-login">
+  <div class="login">
+    <form class="card lcard rv" onsubmit="event.preventDefault();location.hash='#dash'">
+      <img class="lg" src="icon.svg" alt="">
+      <h1>מנויומטר</h1>
+      <p>כניסה לבעל המערכת</p>
+      <div class="field"><label for="pw">סיסמה</label>
+        <div class="pw"><input id="pw" type="password" value="hunter2hunter" autocomplete="current-password"><button type="button" aria-label="הצג סיסמה" id="pwT"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10z"/><circle cx="10" cy="10" r="2.5"/></svg></button></div>
+      </div>
+      <button class="btn primary lg" style="width:100%">כניסה</button>
+      <div class="foot">כלי אישי, משתמש אחד</div>
+    </form>
+  </div>
+</main>
+
+<footer class="wrap" id="foot">מנויומטר, כלי אישי</footer>
+
+<!-- bottom tabs -->
+<nav class="tabbar" id="tabbar" aria-label="ניווט תחתון">
+  <a href="#dash" data-nav="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="15.5" width="7" height="5" rx="2"/></svg>מנויים</a>
+  <a href="#inboxes" data-nav="inboxes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M4 8l8 6 8-6"/></svg>תיבות</a>
+  <a href="#login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6.500A2.5 2.5 0 0 0 4 6.500v11A2.5 2.5 0 0 0 6.5 20H10"/><path d="M15 8l4 4-4 4M19 12H9"/></svg>יציאה</a>
+</nav>
+
+<div id="overlay"></div>
+<div class="toast" id="toast" hidden><span id="toastT"></span></div>
+
+<script>
+const TODAY=new Date(2026,9,19);
+const U={unk:'לא סימן',daily:'כל יום',some:'לפעמים',rare:'לעיתים רחוקות',none:'לא משתמש'};
+const UORD=['none','rare','some','daily','unk'];
+const A1='pinhas.k@gmail.com',A2='family.kroyzer@gmail.com';
+const S=[
+ {id:'adobe',n:'Adobe Creative Cloud',v:'Adobe',c:'עיצוב',plan:'Creative Cloud All Apps',amt:59.99,cur:'USD',freq:'חודשי',m:185.97,last:'03.10.2026',next:'03.11.2026',users:1,box:[A1],u:'rare',h:25,link:'account.adobe.com/plans',notes:'נרשמתי לפרויקט של הלקוח באוגוסט, הפרויקט נגמר.'},
+ {id:'netflix',n:'Netflix',v:'Netflix',c:'סטרימינג',plan:'Standard',amt:69.9,cur:'ILS',freq:'חודשי',m:69.9,last:'22.09.2026',next:'22.10.2026',users:4,box:[A2],u:'daily',h:20,link:'netflix.com/youraccount'},
+ {id:'chatgpt',n:'ChatGPT Plus',v:'OpenAI',c:'כלי AI',plan:'Plus',amt:20,cur:'USD',freq:'חודשי',m:62,last:'28.09.2026',next:'28.10.2026',users:1,box:[A1],u:'daily',h:165,link:'chatgpt.com/#settings'},
+ {id:'canva',n:'Canva Pro',v:'Canva',c:'עיצוב',plan:'Pro',amt:54.9,cur:'ILS',freq:'חודשי',m:54.9,last:'11.10.2026',next:'11.11.2026',users:1,box:[A1],u:'some',h:230,link:'canva.com/settings/billing'},
+ {id:'gone',n:'Google One 2TB',v:'Google',c:'אחסון ענן',plan:'2TB',amt:39.99,cur:'ILS',freq:'חודשי',m:39.99,last:'01.10.2026',next:'01.11.2026',users:5,box:[A2],u:'unk',h:255,link:'one.google.com/settings'},
+ {id:'dropbox',n:'Dropbox Plus',v:'Dropbox',c:'אחסון ענן',plan:'Plus',amt:11.99,cur:'USD',freq:'חודשי',m:37.17,last:'25.09.2026',next:'25.10.2026',users:1,box:[A1],u:'none',h:250,link:'dropbox.com/account/plan'},
+ {id:'yt',n:'YouTube Premium',v:'Google',c:'סטרימינג',plan:'Family',amt:33.9,cur:'ILS',freq:'חודשי',m:33.9,last:'14.10.2026',next:'14.11.2026',users:3,box:[A2],u:'some',h:28,link:'youtube.com/paid_memberships'},
+ {id:'m365',n:'Microsoft 365 Personal',v:'Microsoft',c:'תוכנה',plan:'Personal',amt:299,cur:'ILS',freq:'שנתי',m:24.92,last:'06.01.2026',next:'06.01.2027',users:1,box:[A1],u:'some',h:45,link:'account.microsoft.com/services'},
+ {id:'spotify',n:'Spotify Premium',v:'Spotify',c:'סטרימינג',plan:'Duo',amt:23.9,cur:'ILS',freq:'חודשי',m:23.9,last:'17.10.2026',next:'17.11.2026',users:2,box:[A2],u:'daily',h:150,link:'spotify.com/account'},
+ {id:'icloud',n:'iCloud+ 200GB',v:'Apple',c:'אחסון ענן',plan:'200GB',amt:10.9,cur:'ILS',freq:'חודשי',m:10.9,last:'09.10.2026',next:'09.11.2026',users:1,box:[A1],u:'unk',h:235,link:'support.apple.com/billing'},
+ {id:'audible',n:'Audible',v:'Amazon',c:'ספרים',plan:'לא ידוע',amt:null,cur:null,freq:'לא ידוע',m:0,last:'12.10.2026',next:'12.11.2026',users:1,box:[A2],u:'unk',h:70,link:'audible.com/account'},
+ {id:'disney',n:'Disney+',v:'Disney',c:'סטרימינג',plan:'Standard',amt:39.9,cur:'ILS',freq:'חודשי',m:39.9,last:'03.03.2026',next:null,users:2,box:[A2],u:'unk',h:260,st:'cancelled',cdate:'03.2026'},
+ {id:'notion',n:'Notion Plus',v:'Notion',c:'תוכנה',plan:'Plus',amt:10,cur:'USD',freq:'חודשי',m:31,last:'06.06.2026',next:null,users:1,box:[A1],u:'unk',h:100,st:'cancelled',cdate:'06.2026'}
+];
+S.forEach(s=>{s.st=s.st||'active'});
+const SUMMARY={monthly:543.55,yearly:6522.60,leakM:223.14,leakY:2677.68};
+const HIST_ADOBE=[
+ {d:'03.10.2026',a:59.99,i:185.97,subj:'Your receipt from Adobe Systems Software Ireland (IRL-2610-30417)',box:A1},
+ {d:'03.09.2026',a:59.99,i:187.17,subj:'Your receipt from Adobe Systems Software Ireland (IRL-2609-27215)',box:A1},
+ {d:'03.08.2026',a:59.99,i:184.77,subj:'Adobe: your plan price has changed, receipt attached',box:A1,note:'עליית מחיר'},
+ {d:'03.07.2026',a:54.99,i:170.47,subj:'Your receipt from Adobe Systems Software Ireland (IRL-2607-21904)',box:A1,note:'לפני העלאת מחיר'}
+];
+const ALTS={
+ adobe:[
+  {t:'free',tl:'חינם',n:'Affinity',p:0,sv:185.97,why:'עורך תמונות, וקטור ועימוד בלי מנוי חודשי. הבסיס חינמי.',dn:'בלי ענן ובלי הפונטים של Adobe.',l:'affinity.studio'},
+  {t:'incl',tl:'כבר כלול במנוי אחר שלך',n:'Canva Pro',p:0,sv:185.97,why:'כבר משולם אצלך, 0 ₪ תוספת. מספיק לגרפיקה לרשתות.',dn:'עבודה מקצועית בקבצי PSD.',l:'canva.com',best:1},
+  {t:'cheap',tl:'מסלול זול יותר',n:'Photography plan',p:61.97,usd:19.99,sv:124.00,why:'Photoshop ו-Lightroom בחלק מהמחיר.',dn:'בלי Illustrator ו-Premiere.',l:'adobe.com/creativecloud/plans'},
+  {t:'comp',tl:'מתחרה',n:'Figma Professional',p:49.6,usd:16,sv:136.37,why:'עבודה על ממשקים ושיתוף עם לקוחות.',dn:'לא מתאים לעריכת תמונות.',l:'figma.com/pricing'}
+ ],
+ dropbox:[
+  {t:'incl',tl:'כבר כלול במנוי אחר שלך',n:'Google One 2TB',p:0,sv:37.17,why:'יש לך 2TB משולמים, הקבצים יכולים לעבור לשם.',dn:'סנכרון תיקיות לא זהה.',l:'one.google.com',best:1},
+  {t:'cancel',tl:'לבטל',n:'לבטל את Dropbox',p:0,sv:37.17,why:'מסומן אצלך כלא בשימוש, אפשר לסיים מחזור ולהוריד.',dn:'לייצא קודם את הקבצים.',l:'dropbox.com/account/plan'}
+ ]
+};
+const st={status:'active',inbox:'all',cat:'all',use:'all',sort:'cost',alt:'idle',needRe:true,scan:null,sub:'adobe',confirm:false};
+const $=id=>document.getElementById(id);
+const fmt=v=>v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=(v,sz)=>`<bdi class="num">${fmt(v)}<span class="cur">₪</span></bdi>`;
+const orig=s=>s.amt==null?'':s.cur==='USD'?`<bdi class="num">$${fmt(s.amt)}</bdi>`:`<bdi class="num">${fmt(s.amt)}<span class="cur">₪</span></bdi>`;
+const per={'חודשי':'לחודש','שנתי':'לשנה','רבעוני':'לרבעון','שבועי':'לשבוע','לא ידוע':''};
+const pd=t=>{if(!t)return null;const[a,b,c]=t.split('.').map(Number);return new Date(c,b-1,a)};
+const dleft=t=>Math.round((pd(t)-TODAY)/864e5);
+const short=a=>a.split('@')[0];
+const acct=a=>`<span class="acct ${a===A2?'b2':''}">${short(a)}</span>`;
+const months=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
+const sv=(id)=>S.find(s=>s.id===id);
+const act=()=>S.filter(s=>s.st==='active');
+const IC='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h4v4M13 3L7.5 8.500M11 9.500V12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2.5"/></svg>';
+function toast(t){const e=$('toast');$('toastT').textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2400)}
+
+/* ===== dashboard ===== */
+function useChip(s){return `<label class="use" data-s="${s.u}" onclick="event.stopPropagation()"><span class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span></span><select aria-label="שימוש ב-${s.n}" onchange="setUse('${s.id}',this.value)">${Object.keys(U).map(k=>`<option value="${k}" ${k===s.u?'selected':''}>${U[k]}</option>`).join('')}</select></label>`}
+function setUse(id,v){sv(id).u=v;renderDash();if(st.screen==='sub')renderSub()}
+function nextCell(s){if(!s.next)return `<span class="cancelled-tag">בוטל ${s.cdate}</span>`;const d=dleft(s.next);return `<div class="dt ${d<=30?'soon':''}"><bdi class="num">${s.next}</bdi><small>${d<=30?'בעוד '+d+' ימים':''}</small></div>`}
+function costCell(s,mx){if(s.m===0)return `<span class="nop">מחיר לא ידוע</span>`;const w=s.u==='none'||s.u==='rare';return `<div class="mcost"><span>${money(s.m)}</span><i class="${w?'w':''}" style="--w:${Math.max(6,s.m/mx*46)}px"></i></div>`}
+function filtered(){
+  let a=S.filter(s=>st.status==='active'?s.st==='active':s.st==='cancelled');
+  if(st.inbox!=='all')a=a.filter(s=>s.box.includes(st.inbox));
+  if(st.cat!=='all')a=a.filter(s=>s.c===st.cat);
+  if(st.use==='leak')a=a.filter(s=>s.u==='none'||s.u==='rare');
+  else if(st.use!=='all')a=a.filter(s=>s.u===st.use);
+  const k={cost:(x,y)=>y.m-x.m,renew:(x,y)=>(pd(x.next)||1e15)-(pd(y.next)||1e15),name:(x,y)=>x.n.localeCompare(y.n,'en'),last:(x,y)=>pd(y.last)-pd(x.last)}[st.sort];
+  return a.sort(k);
+}
+function renderDash(){
+  const A=act();
+  const leakArr=A.filter(s=>s.u==='none'||s.u==='rare');
+  const leak=leakArr.reduce((a,s)=>a+s.m,0);
+  const tot=A.reduce((a,s)=>a+s.m,0);
+  const noPrice=A.filter(s=>s.m===0);
+  const boxN=new Set(A.flatMap(s=>s.box)).size;
+  $('headLine').textContent=`${A.length} מנויים פעילים, מ-${boxN} תיבות Gmail`;
+  $('lkM').textContent=fmt(leak);$('lkY').textContent=fmt(leak*12);$('lkN').textContent=leakArr.length;
+  $('lkNames').innerHTML=leakArr.length?leakArr.map(s=>`<bdi>${s.n}</bdi>`).join(', '):'אין דליפה כרגע';
+  $('reviewBtn').hidden=!leakArr.length;
+  // meter
+  const sorted=[...A].filter(s=>s.m>0).sort((a,b)=>UORD.indexOf(a.u)-UORD.indexOf(b.u)||b.m-a.m);
+  const seg=s=>{const sh=s.m/tot;return `<button class="mseg s-${s.u}" style="--w:${s.m}" title="${s.n}: ${fmt(s.m)} ₪, ${U[s.u]}" aria-label="${s.n}, ${fmt(s.m)} שקלים לחודש, ${U[s.u]}" onclick="location.hash='#sub/${s.id}'">${sh>.07?`<span class="nm ${sh>.16?'':'l1'}">${s.n.split(' ')[0]}</span>`:''}</button>`};
+  const lk=sorted.filter(s=>s.u==='none'||s.u==='rare'),ok=sorted.filter(s=>!(s.u==='none'||s.u==='rare'));
+  const okM=tot-leak;
+  $('meter').innerHTML=(lk.length?`<div class="mgrp lk" style="flex:${leak} 1 0"><span class="mcap">דליפה, <bdi class="num">${fmt(leak)} ₪</bdi> (${Math.round(leak/tot*100)}%)</span>${lk.map(seg).join('')}</div>`:'')+`<div class="mgrp ok" style="flex:${okM} 1 0"><span class="mcap">בשימוש או לא סומן, <bdi class="num">${fmt(okM)} ₪</bdi></span>${ok.map(seg).join('')}</div>`;
+  const by=k=>A.filter(s=>s.u===k).reduce((a,s)=>a+s.m,0);
+  $('mleg').innerHTML=UORD.map(k=>`<span><i class="s-${k}"></i>${U[k]} <b><bdi class="num">${fmt(by(k))}</bdi></b></span>`).join('');
+  $('mnote').innerHTML=noPrice.length?`<span>${noPrice.length===1?'מנוי אחד':noPrice.length+' מנויים'} ללא מחיר ידוע (<bdi>${noPrice.map(s=>s.n).join(', ')}</bdi>) לא נכנס לחישוב.</span><button onclick="st.use='all';st.sort='cost';location.hash='#sub/${noPrice[0].id}'">הוסף מחיר</button>`:'';
+  $('kM').textContent=fmt(SUMMARY.monthly);$('kY').textContent=fmt(SUMMARY.yearly);
+  $('kN').textContent=A.length;
+  $('kSub').innerHTML=`${noPrice.length?`<b style="color:var(--rare)">${noPrice.length} ללא מחיר ידוע</b> · `:''}בוטלו עד היום: <bdi class="num">${S.filter(s=>s.st==='cancelled').length}</bdi>`;
+  // banner
+  $('bannerSlot').innerHTML=st.needRe?`<div class="banner"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3l8 14H2L10 3z"/><path d="M10 8.500v4M10 15h.01"/></svg><span>התיבה <bdi class="ltr" style="font-family:var(--mono);font-size:12.5px">${A2}</bdi> צריכה חיבור מחדש, הסריקה שלה מושהית.</span><a href="#inboxes">חבר מחדש</a></div>`:'';
+  // renewals
+  const rn=A.filter(s=>s.next&&dleft(s.next)>=0&&dleft(s.next)<=30).sort((a,b)=>pd(a.next)-pd(b.next));
+  $('renMeta').innerHTML=`${rn.length} חידושים, סה"כ ${money(rn.reduce((a,s)=>a+(s.amt==null?0:s.cur==='USD'?s.amt*3.1:s.amt),0))}`;
+  $('ren').innerHTML=rn.map(s=>{const d=pd(s.next),dl=dleft(s.next);return `<button class="rn ${dl<=7?'soon':''} ${s.u==='none'||s.u==='rare'?'warn':''}" onclick="location.hash='#sub/${s.id}'"><span class="d"><b><bdi class="num">${d.getDate()}</bdi></b><small>${months[d.getMonth()]}</small></span><span class="t"><b>${s.n}</b><small>${s.amt==null?'מחיר לא ידוע':orig(s)} · בעוד ${dl} ימים</small></span></button>`}).join('');
+  // toolbar
+  const cats=[...new Set(S.map(s=>s.c))];
+  const opts=(el,arr,val)=>{el.innerHTML=arr.map(([v,l])=>`<option value="${v}" ${v===val?'selected':''}>${l}</option>`).join('');el.classList.toggle('act',val!==arr[0][0])};
+  opts($('fInbox'),[['all','כל התיבות'],[A1,short(A1)],[A2,short(A2)]],st.inbox);
+  opts($('fCat'),[['all','כל הקטגוריות'],...cats.map(c=>[c,c])],st.cat);
+  opts($('fUse'),[['all','כל רמות השימוש'],['leak','דליפה (לא משתמש ולעיתים רחוקות)'],...Object.keys(U).map(k=>[k,U[k]])],st.use);
+  opts($('fSort'),[['cost','מיון: עלות חודשית'],['renew','מיון: חידוש קרוב'],['name','מיון: שם'],['last','מיון: חיוב אחרון']],st.sort);
+  $('fSort').classList.remove('act');
+  $('stSeg').innerHTML=[['active','פעילים',A.length],['cancelled','בוטלו',S.filter(s=>s.st==='cancelled').length]].map(([k,l,n])=>`<button aria-pressed="${st.status===k}" data-st="${k}">${l}<span class="ct"><bdi class="num">${n}</bdi></span></button>`).join('');
+  const f=filtered();
+  const hasF=st.inbox!=='all'||st.cat!=='all'||st.use!=='all';
+  $('clearF').hidden=!hasF;
+  $('tbCount').textContent=`${f.length} מנויים`;
+  $('listMeta').textContent='';
+  const mx=Math.max(...S.map(s=>s.m));
+  if(!f.length){$('listBody').innerHTML='<div class="none-found">אין מנויים שמתאימים לסינון</div>'}
+  else $('listBody').innerHTML=`<div class="rows">${f.map(s=>`<div class="srow" tabindex="0" onclick="location.hash='#sub/${s.id}'"><span class="mono" style="--h:${s.h}">${s.n[0]}</span><div class="main"><b>${s.n}</b><small>${s.v} · ${s.c}${s.users>1?' · '+s.users+' משתמשים':''}</small></div><div class="cost">${costCell(s,mx)}${s.amt!=null?`<div style="text-align:end;color:var(--ink3);font-size:11.5px;margin-top:2px">${orig(s)} ${per[s.freq]}</div>`:''}</div><div class="rn2">${s.next?`חידוש <bdi class="num">${s.next}</bdi> <em>${dleft(s.next)<=30?'בעוד '+dleft(s.next)+' ימים':''}</em>`:`<span class="cancelled-tag">בוטל ${s.cdate}</span>`}</div>${useChip(s)}${acct(s.box[0])}</div>`).join('')}</div>
+  <table class="t"><thead><tr><th>שירות</th><th>קטגוריה</th><th class="r">מחיר</th><th class="r">לחודש</th><th>חיוב אחרון</th><th>חידוש הבא</th><th>תיבה</th><th>שימוש</th></tr></thead><tbody>${f.map(s=>`<tr onclick="location.hash='#sub/${s.id}'"><td><div class="svc"><span class="mono" style="--h:${s.h}">${s.n[0]}</span><div><b>${s.n}</b><small>${s.v}${s.users>1?' · '+s.users+' משתמשים':''}</small></div></div></td><td style="color:var(--ink2)">${s.c}</td><td class="r">${s.amt==null?'<span style="color:var(--ink3)">לא ידוע</span>':orig(s)+' <small style="color:var(--ink3);font-size:12px">'+per[s.freq]+'</small>'}</td><td class="r">${costCell(s,mx)}</td><td class="dt"><bdi class="num">${s.last}</bdi></td><td>${nextCell(s)}</td><td>${acct(s.box[0])}</td><td>${useChip(s)}</td></tr>`).join('')}</tbody></table>`;
+  const fm=f.reduce((a,s)=>a+s.m,0);
+  $('tfoot').innerHTML=`<span>מציג <b>${f.length}</b> מתוך ${S.filter(s=>st.status==='active'?s.st==='active':s.st==='cancelled').length}</span><span>סך חודשי בתצוגה: <b>${money(fm)}</b></span>`;
+}
+document.addEventListener('change',e=>{
+  const m={fInbox:'inbox',fCat:'cat',fUse:'use',fSort:'sort'}[e.target.id];
+  if(m){st[m]=e.target.value;renderDash()}
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-st]');if(b){st.status=b.dataset.st;renderDash()}
+  const g=e.target.closest('[data-go]');if(g)location.hash='#'+g.dataset.go;
+});
+$('clearF').onclick=()=>{st.inbox=st.cat=st.use='all';renderDash()};
+$('reviewBtn').onclick=()=>{st.use='leak';st.status='active';renderDash();$('lh').scrollIntoView({behavior:'smooth',block:'start'})};
+
+/* ===== subscription ===== */
+function renderSub(){
+  const s=sv(st.sub),yr=s.m*12;
+  const hist=s.id==='adobe'?HIST_ADOBE:s.amt==null?[]:[0,1,2].map(i=>({d:s.last,a:s.amt,i:s.m,subj:`Receipt from ${s.v}`,box:s.box[0]}));
+  const alts=ALTS[s.id]||[];
+  const stText={active:'פעיל',cancelled:'בוטל',hidden:'הוסתר'}[s.st];
+  const stCls={active:'',cancelled:'c',hidden:'h'}[s.st];
+  const rise=s.id==='adobe'?`<div class="alert"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l7 12H1L8 2z"/><path d="M8 6.500v3.500M8 12h.01"/></svg><span>המחיר עלה מ-<bdi class="num">$54.99</bdi> ל-<bdi class="num">$59.99</bdi> באוגוסט 2026.</span></div>`:'';
+  let altHtml='';
+  if(st.alt==='idle')altHtml=`<div class="altbox idle"><p>בדיקה חיה ברשת של מחירים ומתחרים. לוקחת בין חצי דקה לדקה.</p><button class="btn primary lg" onclick="runAlt()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.500L14 14"/></svg>מצא חלופות</button></div>`;
+  else if(st.alt==='loading')altHtml=`<div class="altbox"><div class="ld-top"><span class="spin"></span>בודק מחירים... <small>עד דקה, אפשר להישאר במסך</small></div><div class="prog"><i id="altProg" style="--pp:${st.altp||55}%"></i></div><div class="sk-row"><div class="sk"><i></i><i></i><i></i><i></i></div><div class="sk"><i></i><i></i><i></i><i></i></div></div></div>`;
+  else if(st.alt==='error')altHtml=`<div class="altbox err"><p>לא הצלחתי לבדוק חלופות כרגע, אפשר לנסות שוב</p><button class="btn lg" onclick="runAlt()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.7-4"/><path d="M13.5 2.500v3h-3"/></svg>נסה שוב</button></div>`;
+  else altHtml=alts.length?`<div class="alts">${alts.map(a=>`<article class="alt ${a.best?'best':''}">${a.best?'<span class="bestlbl">החיסכון הגדול ביותר</span>':''}<div class="alt-h"><div><b>${a.n}</b><span class="atype t-${a.t}">${a.tl}</span></div><div class="alt-p">${a.p===0?'0 <span class="cur">₪</span>':money(a.p)}<small>${a.usd?`<bdi class="num">$${a.usd}</bdi> `:''}לחודש</small></div></div><span class="save">חיסכון <bdi class="num">${fmt(a.sv)}<span class="cur">₪</span></bdi> לחודש</span><p>${a.why}</p><div class="give"><em>מוותרים על:</em>${a.dn}</div><a href="#" onclick="event.preventDefault()">${IC}<bdi class="ltr">${a.l}</bdi></a></article>`).join('')}</div><div class="acts"><span class="checked">נבדק ב-<bdi class="num">12.10.2026</bdi></span><button class="btn ghost" onclick="runAlt()">בדוק שוב</button></div>`:`<div class="altbox idle"><p>לא נמצאה חלופה זולה יותר למנוי הזה.</p><span class="checked">נבדק ב-<bdi class="num">12.10.2026</bdi></span></div>`;
+  $('appTtl').textContent=s.n;
+  $('subBody').innerHTML=`
+  <div class="crumb rv"><a href="#dash">לוח מנויים</a><span>/</span><span>${s.n}</span></div>
+  <article class="card dr rv" style="--i:1">
+    <div class="dr-h"><span class="mono" style="--h:${s.h}">${s.n[0]}</span><div><h2>${s.n}</h2><div class="sub">${s.v} · ${s.c} · ${s.plan}</div></div><span class="sp"></span><span class="stchip ${stCls}">${stText}</span></div>
+    <div class="dr-grid">
+      <div class="dr-col">
+        <div class="h3">שימוש</div>
+        <div class="useseg" role="group" aria-label="רמת שימוש">${Object.keys(U).map(k=>`<button data-s="${k}" aria-pressed="${s.u===k}" onclick="setUse('${s.id}','${k}');toast('סומן: ${U[k]}')"><span class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span></span>${U[k]}</button>`).join('')}</div>
+        ${rise}
+        <div class="h3">פרטי המנוי</div>
+        <div class="facts">
+          <div><small>חיוב אחרון</small><b>${s.amt==null?'לא ידוע':orig(s)}</b></div>
+          <div><small>לחודש</small><b>${s.m?money(s.m):'לא ידוע'}</b></div>
+          <div><small>לשנה</small><b>${s.m?money(yr):'לא ידוע'}</b></div>
+          <div><small>תדירות</small><b>${s.freq}</b></div>
+          <div><small>חיוב אחרון, תאריך</small><b><bdi class="num">${s.last}</bdi></b></div>
+          <div><small>חידוש הבא</small><b>${s.next?`<bdi class="num">${s.next}</bdi>`:'בוטל'}</b></div>
+          <div><small>משתמשים</small><b>${s.users===1?'משתמש אחד':s.users+' משתמשים'}</b></div>
+          <div class="l"><small>קטגוריה</small><b>${s.c}</b></div>
+          <div class="wide"><small>נמצא בתיבה</small><b class="sm">${s.box.map(b=>`<bdi>${b}</bdi>`).join(', ')}</b></div>
+        </div>
+        <a class="btn primary lg vendor" href="#" onclick="event.preventDefault()">${IC}ניהול או ביטול אצל הספק</a>
+        <div class="acts" style="margin-top:0;margin-bottom:22px">
+          <button class="btn" onclick="markCancel()">${s.st==='cancelled'?'החזר לפעיל':'ביטלתי'}</button>
+          <button class="btn ghost" onclick="markHide()">זה לא מנוי</button>
+        </div>
+        <div class="h3">הערות</div>
+        <textarea aria-label="הערות" placeholder="הערה חופשית על המנוי">${s.notes||''}</textarea>
+        <div class="acts"><button class="btn" onclick="toast('ההערה נשמרה')">שמור הערה</button></div>
+      </div>
+      <div class="dr-col">
+        <div class="h3">חלופות <span class="checked">${st.alt==='results'&&alts.length?'נבדק ב-12.10.2026':''}</span></div>
+        <div style="margin-bottom:22px">${altHtml}</div>
+        <div class="h3">היסטוריית חיובים</div>
+        <div class="hist">${hist.length?`<div class="hrow hh"><span>תאריך</span><span>סכום</span><span style="text-align:end">בשקלים</span></div>`+hist.map(h=>`<div class="hrow"><bdi class="num">${h.d}</bdi><span class="amt">${s.cur==='USD'?`<bdi class="num">$${fmt(h.a)}</bdi>`:`<bdi class="num">${fmt(h.a)}<span class="cur">₪</span></bdi>`}<small>${s.cur||''}</small></span><span class="amt" style="text-align:end">${money(h.i)}${h.note?`<span class="tagp">${h.note}</span>`:''}</span><span class="acct ${h.box===A2?'b2':''}" style="grid-column:1/-1;font-size:11.5px">${h.box}</span><span class="subj" style="grid-column:1/-1;text-align:start" title="${h.subj}">${h.subj}</span></div>`).join(''):'<div class="none-found" style="padding:14px">עוד לא נמצאו חיובים עם סכום</div>'}</div>
+      </div>
+    </div>
+  </article>`;
+}
+let altT;
+function runAlt(){
+  clearInterval(altT);st.alt='loading';st.altp=8;renderSub();
+  altT=setInterval(()=>{st.altp=Math.min(96,(st.altp||0)+9);const p=$('altProg');if(p)p.style.setProperty('--pp',st.altp+'%');},500);
+  setTimeout(()=>{clearInterval(altT);st.alt=document.body.dataset.fail==='1'?'error':'results';if(st.screen==='sub')renderSub()},4500);
+}
+function markCancel(){const s=sv(st.sub);s.st=s.st==='cancelled'?'active':'cancelled';if(s.st==='cancelled'){s.cdate='10.2026';s.next=null}toast(s.st==='cancelled'?'סומן כבוטל':'הוחזר לפעילים');renderSub();renderDash()}
+function markHide(){const s=sv(st.sub);s.st=s.st==='hidden'?'active':'hidden';toast(s.st==='hidden'?'המנוי הוסתר מהרשימה':'המנוי חזר');renderSub();renderDash()}
+
+/* ===== inboxes ===== */
+const BOX=[{a:A1,n:'8',av:'P',last:'היום 08:14'},{a:A2,n:'5',av:'F',last:'היום 08:14',b2:1}];
+function renderInboxes(){
+  $('ibx').innerHTML=BOX.map(b=>{const bad=b.b2&&st.needRe;return `<article class="card ib ${bad?'bad':''} rv"><div class="ib-h"><span class="av ${b.b2?'b2':''}">${b.av}</span><div style="min-width:0"><div class="em">${b.a}</div><small>${b.n} מנויים נמצאו</small></div><span class="stchip ib-st ${bad?'h':''}" style="${bad?'background:var(--rare-bg);color:var(--rare);border:0':''}">${bad?'צריך לחבר מחדש':'מחוברת'}</span></div><div class="ib-facts"><div><small>סריקה אחרונה</small><b>${bad?'<bdi class="num">17.10.2026 08:14</bdi>':b.last.replace('08:14','<bdi class="num">08:14</bdi>')}</b></div><div><small>מיילים שנקראו</small><b><bdi class="num">${b.b2?'1,284':'2,051'}</bdi></b></div></div><div class="acts">${bad?'<button class="btn primary" onclick="toast(\'מעביר להתחברות עם Google\')">חבר מחדש</button>':''}<button class="btn danger-o" onclick="askDisc(\''+b.a+'\')">נתק תיבה</button></div></article>`}).join('');
+}
+function askDisc(a){st.confirm=a;$('overlay').innerHTML=`<div class="ov" onclick="if(event.target===this)closeDlg()"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dt"><h3 id="dt">לנתק את התיבה?</h3><p><bdi class="ltr" style="font-family:var(--mono);font-size:13px">${a}</bdi></p><p style="margin-top:8px">הסריקה של התיבה הזו תיפסק. המנויים שכבר נמצאו נשארים ברשימה, ואפשר לחבר אותה שוב בכל רגע.</p><div class="acts"><button class="btn lg" onclick="closeDlg()">ביטול</button><button class="btn ember lg" onclick="closeDlg();toast('התיבה נותקה')">נתק תיבה</button></div></div></div>`}
+function closeDlg(){$('overlay').innerHTML='';st.confirm=false}
+let scT;
+function scanUI(r,f,done){$('scanPanel').hidden=false;$('scRead').textContent=r;$('scFound').textContent=f;$('scBar').parentElement.style.setProperty('--pp','0');$('scBar').style.setProperty('--pp',(r/340*100)+'%');$('scTitle').textContent=done?'הסריקה הסתיימה':'סורק את התיבות';document.querySelector('#scanPanel .spin').style.display=done?'none':''}
+function startScan(){go('inboxes');clearInterval(scT);let r=0;scT=setInterval(()=>{r=Math.min(340,r+20);scanUI(r,Math.round(r/340*18),r>=340);if(r>=340){clearInterval(scT);toast('נמצאו 18 מנויים')}},300)}
+$('scanBtn2').onclick=startScan;$('topScan').onclick=startScan;$('connBtn').onclick=()=>toast('מעביר להתחברות עם Google');
+$('pwT').onclick=()=>{const i=$('pw');i.type=i.type==='password'?'text':'password'};
+$('backBtn').onclick=()=>location.hash='#dash';
+
+/* ===== routing + demo chrome ===== */
+const SCR=[['dash','לוח'],['sub','מנוי'],['inboxes','תיבות'],['login','כניסה'],['empty','מצב ריק'],['install','התקנה']];
+const STATES={sub:[['idle','חלופות: ממתין'],['loading','בטעינה'],['results','תוצאות'],['error','שגיאה']],inboxes:[['normal','רגיל'],['scanning','סריקה בעיצומה'],['confirm','דיאלוג ניתוק']]};
+function go(s,extra){location.hash='#'+s+(extra?'/'+extra:'')}
+function route(){
+  const parts=location.hash.slice(1).split('/');let sc=parts[0]||'dash';
+  if(sc==='install'){$('install').open=true;sc=st.screen||'dash';}
+  const rest=parts.slice(1);
+  rest.forEach(t=>{if(sv(t))st.sub=t;else if(['idle','loading','results','error'].includes(t)){st.alt=t;st.altp=55}else if(t==='scanning'||t==='confirm')st.dstate=t;else if(t==='normal')st.dstate=null});
+  if(sc==='sub'&&!rest.some(t=>['idle','loading','results','error'].includes(t))&&!rest.some(t=>sv(t))){}
+  st.screen=sc;
+  document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('on',e.id==='s-'+sc));
+  document.body.classList.toggle('sub-view',sc==='sub');
+  const login=sc==='login';
+  $('top').style.display=login?'none':'';$('tabbar').style.display=login?'none':'';$('foot').style.display=login?'none':'';
+  document.querySelectorAll('[data-nav]').forEach(a=>{const on=a.dataset.nav===(sc==='sub'||sc==='empty'?'dash':sc);on?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current')});
+  if(sc==='dash')renderDash();
+  if(sc==='sub')renderSub();
+  if(sc==='inboxes'){renderInboxes();closeDlg();if(st.dstate==='scanning'){clearInterval(scT);scanUI(120,18*120/340|0||6,false);$('scFound').textContent='18'}else if(st.dstate==='confirm')askDisc(A2);else if(!scT||true){}}
+  drawChrome();
+  window.scrollTo(0,0);
+}
+function drawChrome(){
+  $('dScreens').innerHTML='<b>מסך</b>'+SCR.map(([k,l])=>`<button aria-pressed="${k===st.screen}" onclick="go('${k}')">${l}</button>`).join('');
+  let h='';
+  if(st.screen==='sub')h=`<b>חלופות</b>`+STATES.sub.map(([k,l])=>`<button aria-pressed="${st.alt===k}" onclick="go('sub/${st.sub}/${k}')">${l}</button>`).join('')+` <button aria-pressed="${document.body.dataset.fail==='1'}" onclick="document.body.dataset.fail=document.body.dataset.fail==='1'?'':'1';drawChrome()">הלחיצה על מצא חלופות נכשלת</button>`;
+  if(st.screen==='dash'||st.screen==='inboxes')h+=` <button aria-pressed="${st.needRe}" onclick="st.needRe=!st.needRe;route2()">תיבה דורשת חיבור מחדש</button>`;
+  if(st.screen==='inboxes')h=`<b>מצב</b>`+STATES.inboxes.map(([k,l])=>`<button aria-pressed="${(st.dstate||'normal')===k}" onclick="go('inboxes/${k}')">${l}</button>`).join('')+h;
+  $('dStates').innerHTML=h;
+}
+function route2(){if(st.screen==='dash')renderDash();if(st.screen==='inboxes')renderInboxes();drawChrome()}
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>

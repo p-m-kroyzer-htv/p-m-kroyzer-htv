@@ -7,3 +7,8 @@ node_modules/
 Thumbs.db
 *.log
 .playwright-mcp/
+data/*.db
+data/*.db-*
+.next/
+next-env.d.ts
+*.tsbuildinfo

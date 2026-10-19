@@ -1,0 +1,30 @@
+{
+  "name": "subscriptions-scanner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "סורק מנויים: מוצא חיובים של מנויים בתיבות Gmail, מרכז עלויות, שימוש וחלופות",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "better-sqlite3": "^13.0.3",
+    "next": "^16.4.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}

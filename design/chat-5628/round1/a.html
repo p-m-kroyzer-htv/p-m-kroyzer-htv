@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מנויומטר - לוח מנויים</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<style>
+:root{
+  --bg:oklch(0.978 0.004 95);
+  --surface:oklch(0.995 0.002 95);
+  --sunk:oklch(0.962 0.005 100);
+  --ink:oklch(0.23 0.02 215);
+  --ink2:oklch(0.43 0.016 215);
+  --ink3:oklch(0.58 0.012 215);
+  --line:oklch(0.918 0.006 110);
+  --line2:oklch(0.87 0.008 110);
+  --accent:oklch(0.37 0.07 215);       /* petrol */
+  --accent-2:oklch(0.52 0.1 205);
+  --accent-soft:oklch(0.968 0.011 205);
+  /* usage states */
+  --daily:oklch(0.46 0.12 152);  --daily-bg:oklch(0.958 0.04 152);
+  --some:oklch(0.46 0.06 245);   --some-bg:oklch(0.958 0.02 245);
+  --rare:oklch(0.47 0.11 72);    --rare-bg:oklch(0.955 0.065 88);
+  --none:oklch(0.48 0.17 38);    --none-bg:oklch(0.952 0.04 45);
+  --unk:oklch(0.5 0.01 215);     --unk-bg:oklch(0.955 0.004 215);
+  --r:10px;
+  --shadow:0 1px 0 oklch(1 0 0 / .8) inset, 0 1px 2px oklch(0.3 0.02 215 / .05);
+  --font:'Heebo','Assistant',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg)}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,select,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+bdi,.ltr{unicode-bidi:isolate}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+.cur{font-size:.82em;font-weight:500;margin-inline-start:.18em}
+.wrap{max-width:1400px;margin-inline:auto;padding-inline:32px}
+
+/* top bar */
+.top{background:var(--surface);border-bottom:1px solid var(--line);position:relative;z-index:5}
+.top .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:0;text-decoration:none}
+.brand svg{width:28px;height:28px}
+.nav{display:flex;gap:4px;flex:1}
+.nav a{padding:7px 14px;border-radius:8px;text-decoration:none;color:var(--ink2);font-weight:500}
+.nav a:hover{background:var(--sunk)}
+.nav a[aria-current]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.scan{display:flex;align-items:center;gap:14px}
+.scan-st{display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:13px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--daily);box-shadow:0 0 0 0 oklch(0.6 0.15 152/.5);animation:pulse 2.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:7px 14px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);transition:background .15s,border-color .15s,transform .1s}
+.btn:hover{background:var(--sunk)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:15px;height:15px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:oklch(0.98 0.005 200)}
+.btn.primary:hover{background:oklch(0.31 0.065 215)}
+.btn.ember{background:var(--none);border-color:var(--none);color:oklch(0.99 0.01 60)}
+.btn.ember:hover{background:oklch(0.43 0.16 38)}
+.btn.ghost{border-color:transparent;background:transparent;box-shadow:none;color:var(--ink2)}
+.logout{color:var(--ink3);font-size:13px;text-decoration:none}
+.logout:hover{color:var(--ink)}
+
+/* page head */
+.head{display:flex;align-items:flex-end;justify-content:space-between;padding-block:30px 20px;gap:20px}
+h1{font-size:28px;font-weight:800;line-height:1.15}
+.head p{color:var(--ink2);margin-top:4px}
+.today{color:var(--ink3);font-size:13px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:1.75fr 1fr 1fr 1fr;gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
+.kpi .lbl{font-size:13px;color:var(--ink2);font-weight:500}
+.kpi .val{font-size:30px;font-weight:700;line-height:1.1;margin-top:6px}
+.kpi .sub{color:var(--ink3);font-size:12.5px}
+.kpi.hero{display:block;background:linear-gradient(115deg,oklch(0.968 0.035 52),oklch(0.985 0.012 70) 70%);border-color:oklch(0.86 0.06 50);position:relative;overflow:hidden;padding:20px 24px}
+.kpi.hero::after{content:"";position:absolute;inset-inline-end:-40px;top:-50px;width:200px;height:200px;border-radius:50%;border:1px solid oklch(0.85 0.07 50/.6);box-shadow:0 0 0 22px oklch(0.85 0.07 50/.18),0 0 0 44px oklch(0.85 0.07 50/.1);pointer-events:none}
+.hero .lbl{color:var(--none);font-weight:700;display:flex;gap:8px;align-items:center}
+.hero .lbl i{width:7px;height:7px;border-radius:2px;background:var(--none);display:inline-block;transform:rotate(45deg)}
+.hero .val{font-size:56px;font-weight:800;color:oklch(0.4 0.16 38);letter-spacing:0;margin-top:2px}
+.hero .val .per{font-size:15px;font-weight:500;color:var(--ink2);margin-inline-start:8px}
+.hero .sub{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.hero .bar{margin-top:16px}
+.hero .bar-track{height:8px;border-radius:4px;background:oklch(0.9 0.02 70);overflow:hidden;display:flex}
+.hero .bar-fill{background:repeating-linear-gradient(135deg,var(--none) 0 5px,oklch(0.6 0.17 38) 5px 9px);border-radius:4px;transition:width .5s}
+.hero .bar-cap{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-top:6px}
+.hero .cta{margin-top:14px;position:relative;z-index:1}
+.kpi .tick{display:flex;align-items:center;gap:6px;color:var(--ink3);font-size:12.5px;margin-top:auto;padding-top:8px}
+
+.mini{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-top:auto}
+.mini i{display:block;height:100%;background:var(--c);min-width:3px}
+.legend{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:12px;color:var(--ink2);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--c);margin-inline-end:5px}
+.kpi .sp{flex:1}
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.sec{margin-top:22px}
+.card-h{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.card-h h2{font-size:15px;font-weight:700}
+.card-h .meta{color:var(--ink2);font-size:13px}
+
+/* timeline */
+.tl-wrap{padding:8px 20px 6px}
+.tl{position:relative;height:196px;margin-inline:96px}
+.tl-axis{position:absolute;inset-inline:0;top:50%;height:2px;background:linear-gradient(to left,var(--accent) 0,var(--accent-2) 3%,var(--line2) 3%);border-radius:2px}
+.tl-ticks{position:absolute;inset-inline:0;top:50%}
+.tl-ticks span{position:absolute;top:-3px;width:1px;height:8px;background:var(--line2)}
+.tl-cap{position:absolute;top:50%;translate:0 -50%;font-size:12px;color:var(--ink3);white-space:nowrap}
+.tl-cap.s{inset-inline-start:-86px;color:var(--accent);font-weight:700}
+.tl-cap.e{inset-inline-end:-86px;text-align:end}
+.tl-item{position:absolute;inset-block:0;inset-inline-start:calc(var(--p) * 1%);width:0}
+.tl-dot{position:absolute;top:50%;inset-inline-start:0;width:13px;height:13px;border-radius:50%;background:var(--surface);border:3px solid var(--c);translate:50% -50%;z-index:2}
+.tl-stem{position:absolute;inset-inline-start:0;width:1px;background:var(--line2);translate:50% 0}
+.up .tl-stem{bottom:50%;height:20px}
+.dn .tl-stem{top:50%;height:20px}
+.tl-lab{position:absolute;inset-inline-start:-77px;width:154px;padding:7px 10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;text-align:center;box-shadow:var(--shadow);line-height:1.35}
+.up .tl-lab{bottom:calc(50% + 20px)}
+.dn .tl-lab{top:calc(50% + 20px)}
+.tl-lab b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-lab small{color:var(--ink2);font-size:12px;display:flex;justify-content:center;gap:8px}
+.tl-lab.warn{border-color:oklch(0.85 0.07 45);background:var(--none-bg)}
+.tl-item:hover .tl-lab{border-color:var(--accent-2)}
+
+/* toolbar + table */
+.toolbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--sunk);padding:3px;border-radius:9px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:7px;font-weight:500;color:var(--ink2);font-size:13px}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 2px oklch(0.3 0.02 215/.12)}
+.seg .ct{color:var(--ink3);margin-inline-start:4px;font-weight:400}
+.sel{position:relative}
+.sel select{appearance:none;border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:6px 12px;padding-inline-end:30px;font-size:13px;font-weight:500;box-shadow:var(--shadow);cursor:pointer}
+.sel::after{content:"";position:absolute;inset-inline-end:11px;top:50%;width:6px;height:6px;border-inline-end:1.5px solid var(--ink3);border-bottom:1.5px solid var(--ink3);rotate:45deg;translate:0 -70%;pointer-events:none}
+.sel .ltr-opt{direction:ltr}
+.fchip{display:none;align-items:center;gap:6px;background:var(--none-bg);color:var(--none);border:1px solid oklch(0.85 0.07 45);border-radius:999px;padding:4px 6px 4px 12px;font-size:12.5px;font-weight:600}
+.fchip.on{display:inline-flex}
+.fchip button{border:0;background:transparent;width:20px;height:20px;border-radius:50%;line-height:1;color:inherit;font-size:15px}
+.fchip button:hover{background:oklch(0.9 0.05 45)}
+.tb-count{margin-inline-start:auto;color:var(--ink3);font-size:12.5px}
+.sortsel{display:none}
+
+table{width:100%;border-collapse:collapse}
+thead th{text-align:start;font-size:12px;font-weight:600;color:var(--ink3);padding:10px 14px;border-bottom:1px solid var(--line);background:oklch(0.985 0.003 95);white-space:nowrap}
+thead th button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+thead th button:hover{color:var(--ink)}
+thead th button::after{content:"";width:0;height:0;border-inline:4px solid transparent;border-top:5px solid var(--line2);margin-top:1px}
+thead th[aria-sort=descending] button{color:var(--ink)}
+thead th[aria-sort=descending] button::after{border-top-color:var(--accent)}
+thead th[aria-sort=ascending] button{color:var(--ink)}
+thead th[aria-sort=ascending] button::after{border-top:0;border-bottom:5px solid var(--accent)}
+th.r,td.r{text-align:end}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:oklch(0.985 0.004 100)}
+tbody tr.rowsel{background:var(--accent-soft)}
+tbody tr[data-id]{cursor:pointer}
+.svc{display:flex;align-items:center;gap:12px}
+.mono{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;background:oklch(0.94 0.045 var(--h));color:oklch(0.38 0.12 var(--h));border:1px solid oklch(0.88 0.06 var(--h))}
+.svc b{display:block;font-weight:600;line-height:1.25}
+.svc small{color:var(--ink3);font-size:12px}
+.cat{color:var(--ink2)}
+.price{font-variant-numeric:tabular-nums}
+.price small{color:var(--ink3);font-size:12px;margin-inline-start:4px}
+.mcost{font-weight:700;font-size:14.5px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.mcost i{display:block;height:3px;width:var(--w);min-width:3px;border-radius:2px;background:var(--line2)}
+.mcost i.w{background:var(--none)}
+.dt{font-variant-numeric:tabular-nums;color:var(--ink2)}
+.dt small{display:block;color:var(--ink3);font-size:11.5px;line-height:1.3}
+.dt.soon{color:var(--ink)}
+.dt.soon small{color:var(--accent);font-weight:600}
+.acct{font-family:var(--mono);font-size:12px;color:var(--ink2);direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+/* usage chip */
+.use{position:relative;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:3px 10px;border:1px solid transparent;background:var(--ub);color:var(--uc);font-weight:600;font-size:12.5px;cursor:pointer;transition:filter .15s}
+.use:hover{filter:brightness(.97);border-color:var(--uc)}
+.use:focus-within{outline:2px solid var(--accent-2);outline-offset:2px}
+.use select{appearance:none;border:0;background:transparent;color:inherit;font-weight:inherit;font-size:inherit;cursor:pointer;padding:0;padding-inline-end:15px;outline:0;min-width:70px}
+.use::after{content:"";position:absolute;inset-inline-end:10px;top:50%;width:5px;height:5px;border-inline-end:1.5px solid currentColor;border-bottom:1.5px solid currentColor;rotate:45deg;translate:0 -70%;pointer-events:none}
+.use select option{color:var(--ink);background:#fff}
+.use[data-s=daily]{--uc:var(--daily);--ub:var(--daily-bg)}
+.use[data-s=some]{--uc:var(--some);--ub:var(--some-bg)}
+.use[data-s=rare]{--uc:var(--rare);--ub:var(--rare-bg)}
+.use[data-s=none]{--uc:var(--none);--ub:var(--none-bg)}
+.use[data-s=unk]{--uc:var(--unk);--ub:var(--unk-bg)}
+.meter{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
+.meter span{width:3px;border-radius:1px;background:currentColor;opacity:.22}
+.meter span:nth-child(1){height:4px}.meter span:nth-child(2){height:6px}.meter span:nth-child(3){height:8.5px}.meter span:nth-child(4){height:11px}
+[data-s=daily] .meter span{opacity:1}
+[data-s=some] .meter span:nth-child(-n+3){opacity:1}
+[data-s=rare] .meter span:nth-child(1){opacity:1}
+[data-s=none] .meter span{opacity:.22;outline:0}
+[data-s=none] .meter span:nth-child(1){opacity:.22}
+.meter.q{width:auto}
+.tfoot{display:flex;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--line);background:oklch(0.985 0.003 95);color:var(--ink2);font-size:13px;border-radius:0 0 var(--r) var(--r)}
+.tfoot b{color:var(--ink)}
+.cancelled-tag{color:var(--ink3);font-size:12.5px}
+
+/* drawer */
+.drawer{margin-top:22px;border-color:var(--line2);box-shadow:0 10px 30px -12px oklch(0.3 0.04 215/.18),var(--shadow);overflow:hidden}
+.drawer[hidden]{display:none}
+.dr-h{display:flex;align-items:center;gap:16px;padding:16px 22px;border-bottom:1px solid var(--line);background:linear-gradient(to bottom,oklch(0.985 0.004 100),var(--surface));flex-wrap:wrap}
+.dr-h .mono{width:44px;height:44px;font-size:16px;border-radius:11px}
+.dr-h h2{font-size:20px;font-weight:800;line-height:1.2}
+.dr-h .sub{color:var(--ink2);font-size:13px}
+.dr-h .sp{flex:1}
+.x{width:32px;height:32px;border-radius:8px;border:1px solid var(--line2);background:var(--surface);display:grid;place-items:center}
+.x:hover{background:var(--sunk)}
+.x svg{width:14px;height:14px}
+.dr-grid{display:grid;grid-template-columns:5fr 7fr}
+.dr-col{padding:20px 22px}
+.dr-col+.dr-col{border-inline-start:1px solid var(--line)}
+.h3{font-size:12px;font-weight:700;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:20px}
+.facts div{background:var(--surface);padding:10px 12px}
+.facts small{display:block;color:var(--ink3);font-size:11.5px}
+.facts b{font-size:15.5px;font-weight:700}
+.alert{display:flex;gap:10px;align-items:flex-start;background:var(--rare-bg);border:1px solid oklch(0.88 0.07 85);color:oklch(0.38 0.09 70);border-radius:9px;padding:9px 12px;font-size:13px;margin-bottom:20px}
+.alert svg{width:16px;height:16px;flex:none;margin-top:3px}
+.bill{width:100%;margin-bottom:22px;font-size:13px}
+.bill th{background:none;border-bottom:1px solid var(--line);padding:6px 8px;font-size:11.5px}
+.bill td{padding:8px;border-bottom:1px dashed var(--line)}
+.bill tr:last-child td{border-bottom:0}
+.bill td.prev{color:var(--ink3)}
+.bill .plan{white-space:normal;color:var(--ink2)}
+textarea{width:100%;min-height:74px;resize:vertical;border:1px solid var(--line2);border-radius:9px;padding:10px 12px;background:var(--surface);line-height:1.55;font-size:13.5px}
+textarea:focus{outline:2px solid var(--accent-2);outline-offset:1px;border-color:transparent}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.vendor{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:600;font-size:13px;text-decoration:none;border-bottom:1px solid oklch(0.8 0.04 205)}
+.vendor:hover{border-color:var(--accent)}
+.vendor svg{width:13px;height:13px}
+.checked{font-weight:500;color:var(--ink3);font-size:12px;display:inline-block}
+.alts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.alt{border:1px solid var(--line);border-radius:10px;padding:14px 15px;display:flex;flex-direction:column;gap:8px;background:var(--surface);position:relative;transition:border-color .15s,box-shadow .15s}
+.alt:hover{border-color:var(--accent-2);box-shadow:0 6px 18px -10px oklch(0.4 0.08 210/.35)}
+.alt.best{border-color:oklch(0.78 0.08 160);background:linear-gradient(to bottom,oklch(0.975 0.025 160),var(--surface) 60%)}
+.alt-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.alt-h b{font-size:15px;font-weight:700;line-height:1.25}
+.alt-p{font-weight:700;font-size:13px;text-align:end;white-space:nowrap}
+.alt-p small{display:block;font-weight:500;color:var(--ink3);font-size:11.5px}
+.save{display:inline-block;align-self:flex-start;font-size:12px;font-weight:700;color:var(--daily);background:var(--daily-bg);border-radius:6px;padding:2px 8px}
+.alt p{font-size:13px;color:var(--ink2);line-height:1.5}
+.alt .give{border-top:1px dashed var(--line);padding-top:8px;font-size:12.5px;color:var(--ink2)}
+.alt .give em{font-style:normal;font-weight:700;color:var(--ink3);margin-inline-end:4px}
+.alt a{margin-top:auto;font-size:12.5px;font-weight:600;color:var(--accent);text-decoration:none;display:inline-flex;gap:5px;align-items:center}
+.alt a:hover{text-decoration:underline}
+.bestlbl{position:absolute;inset-block-start:-9px;inset-inline-start:14px;background:var(--daily);color:#fff;font-size:11px;font-weight:700;padding:1px 8px;border-radius:5px}
+.state-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ink3);background:var(--sunk);border:1px dashed var(--line2);border-radius:5px;padding:0 7px}
+.loading{margin-top:16px;border:1px dashed var(--line2);border-radius:10px;padding:14px 15px;background:oklch(0.985 0.003 95)}
+.loading[hidden]{display:none}
+.ld-top{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;margin-bottom:10px;flex-wrap:wrap}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--accent);animation:sp 0.9s linear infinite}
+@keyframes sp{to{rotate:360deg}}
+.prog{height:4px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.prog i{display:block;height:100%;width:var(--pp,60%);background:linear-gradient(to left,var(--accent-2),var(--accent));border-radius:3px;transition:width .4s linear}
+.sk-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sk{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:12px;display:grid;gap:7px}
+.sk i{display:block;height:9px;border-radius:5px;background:linear-gradient(100deg,var(--sunk) 30%,oklch(0.985 0.003 100) 50%,var(--sunk) 70%) 100% 0/220% 100%;animation:sh 1.4s linear infinite}
+@keyframes sh{to{background-position:-120% 0}}
+.sk i:nth-child(1){width:46%;height:12px}.sk i:nth-child(3){width:72%}
+
+/* empty */
+.empty{margin-top:22px;border:1.5px dashed var(--line2);border-radius:var(--r);background:oklch(0.99 0.003 95);display:flex;align-items:center;gap:24px;padding:20px 24px;position:relative}
+.empty .state-tag{position:absolute;inset-block-start:-10px;inset-inline-start:20px;background:var(--bg)}
+.empty svg.ill{width:76px;height:76px;flex:none}
+.empty h3{font-size:17px;font-weight:700}
+.empty p{color:var(--ink2);max-width:62ch;margin-top:2px}
+.empty .acts{margin:0;margin-inline-start:auto}
+footer{padding:30px 0 50px;color:var(--ink3);font-size:12.5px;text-align:center}
+
+/* mobile summary */
+.msum{display:none}
+
+@media (max-width:1100px){
+  .kpis{grid-template-columns:1fr 1fr 1fr}
+  .kpi.hero{grid-column:1/-1}
+  .dr-grid{grid-template-columns:1fr}
+  .dr-col+.dr-col{border-inline-start:0;border-top:1px solid var(--line)}
+  .tl{margin-inline:70px}
+  .tl-cap.s{inset-inline-start:-64px}.tl-cap.e{inset-inline-end:-64px}
+  .tl-lab{inset-inline-start:-62px;width:124px;padding:6px}
+  .tl-lab small{flex-direction:column;gap:0}
+  .tl-lab b{font-size:12px}
+  .wrap{padding-inline:20px}
+  table.t .c-last,table.t .c-cat{display:none}
+}
+@media (max-width:760px){
+  body{font-size:14px}
+  .wrap{padding-inline:14px}
+  .top .wrap{flex-wrap:wrap;height:auto;padding-block:10px 0;gap:8px 14px}
+  .brand{order:1}
+  .scan{order:2;margin-inline-start:auto}
+  .scan-st span.t{display:none}
+  .nav{order:3;flex:none;width:100%;border-top:1px solid var(--line);margin-inline:-14px;padding:6px 14px 8px;width:calc(100% + 28px)}
+  .logout{display:none}
+  .head{padding-block:18px 12px}
+  h1{font-size:23px}
+  .today{display:none}
+  .msum{display:flex;position:sticky;top:0;z-index:20;background:oklch(0.995 0.002 95/.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);gap:14px;padding:9px 14px;align-items:center;justify-content:space-between}
+  .msum div{display:flex;flex-direction:column;line-height:1.2}
+  .msum small{font-size:11px;color:var(--ink3)}
+  .msum b{font-size:17px;font-weight:800}
+  .msum .w b{color:var(--none)}
+  .msum .w{padding-inline-end:14px;border-inline-end:1px solid var(--line)}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:14px}
+  .kpi .val{font-size:22px}
+  .kpi.hero{padding:16px}
+  .hero .val{font-size:44px}
+  .hero .cta{width:100%;justify-content:center}
+  .kpi.n3{grid-column:1/-1}
+  /* timeline vertical */
+  .tl-wrap{padding:6px 14px 10px}
+  .tl{height:auto;margin:0;display:grid;gap:0;padding-inline-start:18px;border-inline-start:2px solid var(--line2)}
+  .tl-axis,.tl-ticks,.tl-cap,.tl-stem{display:none}
+  .tl-item{position:relative;inset:auto;width:auto;padding-block:5px}
+  .tl-dot{inset-inline-start:-25px;translate:50% -50%;top:50%}
+  .tl-lab{position:static!important;width:auto;display:flex;justify-content:space-between;align-items:center;padding:7px 12px;text-align:start;box-shadow:none}
+  .tl-lab small{flex-direction:row;gap:12px}
+  .tl-lab b{font-size:13px}
+  .up .tl-lab,.dn .tl-lab{inset:auto}
+  /* table -> cards */
+  .toolbar{padding:12px}
+  .tb-count{display:none}
+  .sortsel{display:block}
+  table.t thead{display:none}
+  table.t,table.t tbody{display:block}
+  table.t tr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"svc cost" "ren acct" "use use";gap:8px 12px;padding:14px 14px;border-bottom:1px solid var(--line)}
+  table.t tr:last-child{border-bottom:0}
+  table.t td{padding:0;border:0;display:block;white-space:normal}
+  table.t td.c-svc{grid-area:svc}
+  table.t td.c-cost{grid-area:cost}
+  table.t td.c-next{grid-area:ren;font-size:13px}
+  table.t td.c-acct{grid-area:acct;align-self:end;text-align:end}
+  table.t td.c-use{grid-area:use}
+  table.t td.c-price{display:none}
+  .mcost{align-items:flex-end}
+  .mcost i{display:none}
+  .c-next .dt small{display:inline;margin-inline-start:6px}
+  .c-next::before{content:"חידוש: ";color:var(--ink3);font-size:12px}
+  .c-next .dt{display:inline}
+  .acct{font-size:11.5px}
+  .tfoot{flex-direction:column;gap:2px}
+  .dr-col{padding:16px}
+  .facts{grid-template-columns:1fr 1fr}
+  .alts,.sk-row{grid-template-columns:1fr}
+  .empty{flex-direction:column;align-items:flex-start}
+  .empty .acts{margin:0}
+  .dr-h{padding:14px 16px}
+  .dr-h .sp{display:none}
+  .dr-h .x{margin-inline-start:auto;order:-1}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* load reveal */
+.rv{animation:rv .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rv{from{opacity:0;transform:translateY(8px)}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="oklch(0.37 0.07 215)"/><path d="M7 15.5a7 7 0 1 1 7 7" fill="none" stroke="oklch(0.97 0.01 200)" stroke-width="2.2" stroke-linecap="round"/><circle cx="14" cy="14" r="2.4" fill="oklch(0.78 0.14 50)"/><path d="M5.2 14.2 7 15.9l1.9-1.7" fill="none" stroke="oklch(0.97 0.01 200)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      מנויומטר
+    </a>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <a href="#" aria-current="page">לוח מנויים</a>
+      <a href="#">חשבונות</a>
+    </nav>
+    <div class="scan">
+      <span class="scan-st"><span class="pulse"></span><span class="t">נסרק לאחרונה:</span> <b style="font-weight:600">היום <bdi class="num">08:14</bdi></b></span>
+      <button class="btn" id="scanBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.7-4"/><path d="M13.5 2.5v3h-3"/></svg>סרוק עכשיו</button>
+      <a class="logout" href="#">יציאה</a>
+    </div>
+  </div>
+</header>
+
+<div class="msum" aria-label="סיכום">
+  <div class="w"><small>משלם על מה שלא בשימוש</small><b><bdi class="num"><span data-waste-m>223.14</span><span class="cur">₪</span></bdi> <span style="font-size:11px;font-weight:500;color:var(--ink3)">לחודש</span></b></div>
+  <div><small>סך חודשי</small><b><bdi class="num">543.55<span class="cur">₪</span></bdi></b></div>
+</div>
+
+<main class="wrap">
+  <div class="head rv">
+    <div>
+      <h1>לוח מנויים</h1>
+      <p><span id="activeN">10</span> מנויים פעילים, מ-2 תיבות Gmail</p>
+    </div>
+    <div class="today">היום, <bdi class="num">19.10.2026</bdi> &nbsp;·&nbsp; שער לחישוב <bdi class="num">$1 = 3.10 ₪</bdi></div>
+  </div>
+
+  <section class="kpis" aria-label="סיכום">
+    <div class="kpi hero rv" style="--i:1">
+      <div class="lbl"><i></i>משלם על מה שלא בשימוש</div>
+      <div class="val"><bdi class="num"><span data-waste-m>223.14</span><span class="cur" style="font-size:.45em">₪</span></bdi><span class="per">לחודש</span></div>
+      <div class="sub"><b style="font-weight:700;color:var(--ink)"><bdi class="num"><span data-waste-y>2,677.68</span><span class="cur">₪</span></bdi> בשנה</b> על <span data-waste-names><bdi>Adobe Creative Cloud</bdi>, <bdi>Dropbox Plus</bdi></span></div>
+      <button class="btn ember cta" id="reviewBtn">סקור <span data-waste-n>2</span> מנויים<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="rotate:180deg"><path d="M6 3l5 5-5 5"/></svg></button>
+      <div class="bar">
+        <div class="bar-track"><div class="bar-fill" id="wbar" style="width:41%"></div></div>
+        <div class="bar-cap"><span><b data-waste-pct>41%</b> מההוצאה החודשית הולכים על מנויים בלי שימוש</span><span>סך חודשי <bdi class="num">543.55 ₪</bdi></span></div>
+      </div>
+    </div>
+    <div class="kpi rv" style="--i:2"><div class="lbl">סך עלות חודשית</div><div class="val"><bdi class="num">543.55<span class="cur" style="font-size:.55em">₪</span></bdi></div><div class="sub">כולל המרת דולר לפי 3.10</div><div class="sp"></div><div class="mini" id="catBar"></div><div class="legend" id="catLeg"></div></div>
+    <div class="kpi rv" style="--i:3"><div class="lbl">סך עלות שנתית</div><div class="val"><bdi class="num">6,522.60<span class="cur" style="font-size:.55em">₪</span></bdi></div><div class="sub">צפי ל-12 חודשים קדימה</div><div class="sp"></div><div class="legend" style="margin-top:0"><span style="--c:var(--none)">הכי יקר: <bdi>Adobe CC</bdi>, <bdi class="num">2,231.64<span class="cur">₪</span></bdi> בשנה</span></div></div>
+    <div class="kpi n3 rv" style="--i:4"><div class="lbl">מנויים פעילים</div><div class="val">10</div><div class="sub">בוטלו עד היום: <bdi class="num">2</bdi></div><div class="sp"></div><div class="mini" id="useBar"></div><div class="legend" id="useLeg"></div></div>
+  </section>
+
+  <section class="card sec rv" style="--i:5" aria-labelledby="tlh">
+    <div class="card-h">
+      <h2 id="tlh">חידושים ב-30 הימים הקרובים</h2>
+      <span class="meta"><b style="color:var(--ink)">9</b> חיובים, בערך <bdi class="num" style="color:var(--ink);font-weight:700">518.63 <span class="cur">₪</span></bdi> עד <bdi class="num">18.11</bdi></span>
+    </div>
+    <div class="tl-wrap"><div class="tl" id="tl"></div></div>
+  </section>
+
+  <section class="card sec rv" style="--i:6" aria-label="רשימת מנויים">
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="מצב"><button aria-pressed="true" data-mode="active">פעילים<span class="ct">10</span></button><button aria-pressed="false" data-mode="cancelled">בוטלו<span class="ct">2</span></button></div>
+      <label class="sel"><select id="fAcct" aria-label="חשבון Gmail"><option value="">כל חשבונות Gmail</option><option value="pinhas.k@gmail.com">pinhas.k@gmail.com</option><option value="family.kroyzer@gmail.com">family.kroyzer@gmail.com</option></select></label>
+      <label class="sel"><select id="fCat" aria-label="קטגוריה"><option value="">כל הקטגוריות</option></select></label>
+      <label class="sel sortsel"><select id="mSort" aria-label="מיון"><option value="m">מיון: עלות חודשית</option><option value="next">מיון: חידוש הבא</option><option value="use">מיון: שימוש</option><option value="name">מיון: שם</option></select></label>
+      <span class="fchip" id="fchip">מסונן: לא בשימוש וכמעט לא<button aria-label="הסר סינון">×</button></span>
+      <span class="tb-count" id="count"></span>
+    </div>
+    <table class="t" id="tbl">
+      <thead><tr>
+        <th data-k="name"><button>שירות</button></th>
+        <th data-k="cat" class="c-cat"><button>קטגוריה</button></th>
+        <th data-k="amt" class="c-price"><button>מחיר</button></th>
+        <th data-k="m" class="r c-cost" aria-sort="descending"><button>₪ לחודש</button></th>
+        <th data-k="last" class="c-last"><button>חיוב אחרון</button></th>
+        <th data-k="next" class="c-next"><button>חידוש הבא</button></th>
+        <th data-k="acct" class="c-acct"><button>חשבון Gmail</button></th>
+        <th data-k="use" class="c-use"><button>שימוש</button></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="tfoot"><span id="tfL"></span><span id="tfR"></span></div>
+  </section>
+
+  <section class="card drawer rv" style="--i:7" id="drawer" aria-label="פרטי מנוי: Adobe Creative Cloud">
+    <div class="dr-h">
+      <div class="mono" style="--h:25">Ai</div>
+      <div>
+        <h2>Adobe Creative Cloud</h2>
+        <div class="sub">Adobe · עיצוב · <span class="acct">pinhas.k@gmail.com</span></div>
+      </div>
+      <label class="use" data-s="rare" id="drUse"><span class="meter"><span></span><span></span><span></span><span></span></span><select aria-label="סימון שימוש"><option value="unk">לא ידוע</option><option value="daily">כל יום</option><option value="some">לפעמים</option><option value="rare" selected>כמעט לא</option><option value="none">לא בשימוש</option></select></label>
+      <span class="sp"></span>
+      <a class="vendor" href="https://account.adobe.com/plans" target="_blank" rel="noopener">ניהול המנוי אצל הספק<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="scale:-1 1"><path d="M5 2.5H2.5v9h9V9M8 2.5h3.5V6M11.5 2.5 6.5 7.5"/></svg></a>
+      <button class="x" id="drClose" aria-label="סגור"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 2l10 10M12 2 2 12"/></svg></button>
+    </div>
+    <div class="dr-grid">
+      <div class="dr-col">
+        <div class="facts">
+          <div><small>עלות חודשית</small><b><bdi class="num">185.97<span class="cur">₪</span></bdi></b></div>
+          <div><small>עלות שנתית</small><b><bdi class="num">2,231.64<span class="cur">₪</span></bdi></b></div>
+          <div><small>חידוש הבא</small><b><bdi class="num">03.11.2026</bdi></b></div>
+        </div>
+        <div class="alert"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2 1.5 13.5h13z"/><path d="M8 6.5v3.2M8 11.7v.1"/></svg><span>המחיר עלה מ-<bdi class="num">$54.99</bdi> ל-<bdi class="num">$59.99</bdi> באוגוסט (<bdi class="num">+9.1%</bdi>). זה כ-<bdi class="num">15.50 ₪</bdi> יותר בכל חודש.</span></div>
+
+        <div class="h3">היסטוריית חיובים<span style="font-weight:500">4 חיובים אחרונים</span></div>
+        <table class="bill">
+          <thead><tr><th>תאריך</th><th class="r">סכום</th><th>מטבע</th><th class="r">בשקלים</th><th>תוכנית</th></tr></thead>
+          <tbody>
+            <tr><td><bdi class="num">03.10.2026</bdi></td><td class="r"><bdi class="num">59.99</bdi></td><td>USD</td><td class="r"><b><bdi class="num">185.97<span class="cur">₪</span></bdi></b></td><td class="plan">Creative Cloud All Apps</td></tr>
+            <tr><td><bdi class="num">03.09.2026</bdi></td><td class="r"><bdi class="num">59.99</bdi></td><td>USD</td><td class="r"><b><bdi class="num">187.17<span class="cur">₪</span></bdi></b></td><td class="plan">Creative Cloud All Apps</td></tr>
+            <tr><td><bdi class="num">03.08.2026</bdi></td><td class="r"><bdi class="num">59.99</bdi></td><td>USD</td><td class="r"><b><bdi class="num">184.77<span class="cur">₪</span></bdi></b></td><td class="plan">Creative Cloud All Apps</td></tr>
+            <tr><td class="prev"><bdi class="num">03.07.2026</bdi></td><td class="r prev"><bdi class="num">54.99</bdi></td><td class="prev">USD</td><td class="r prev"><bdi class="num">170.47<span class="cur">₪</span></bdi></td><td class="plan prev">לפני העלאת המחיר</td></tr>
+          </tbody>
+        </table>
+
+        <div class="h3">הערות</div>
+        <textarea id="note" aria-label="הערות חופשיות">נרשמתי לפרויקט של הלקוח באוגוסט, הפרויקט נגמר.</textarea>
+        <div class="acts">
+          <button class="btn ember" id="cancelBtn">סמן כבוטל</button>
+          <button class="btn">זה לא מנוי</button>
+          <span class="checked" id="saved" style="margin-inline-start:auto">נשמר אוטומטית</span>
+        </div>
+      </div>
+
+      <div class="dr-col">
+        <div class="h3"><span>חלופות ל-Adobe Creative Cloud <span class="checked" style="margin-inline-start:8px">נבדק ב-<bdi class="num">12.10.2026</bdi></span></span>
+          <button class="btn" id="findBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>מצא חלופות</button>
+        </div>
+        <div class="alts" id="alts">
+          <article class="alt best"><span class="bestlbl">0 ₪ תוספת</span>
+            <div class="alt-h"><b>Canva Pro</b><div class="alt-p"><bdi class="num">0 ₪</bdi><small>כבר משולם</small></div></div>
+            <span class="save">חוסך <bdi class="num">185.97 ₪</bdi> לחודש</span>
+            <p>מספיק לגרפיקה לרשתות, ויש לך אותו כבר במנוי קיים.</p>
+            <div class="give"><em>מוותרים על:</em>עבודה מקצועית בקבצי PSD.</div>
+            <a href="https://www.canva.com" target="_blank" rel="noopener">לאתר Canva<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="scale:-1 1"><path d="M5 2.5H2.5v9h9V9M8 2.5h3.5V6M11.5 2.5 6.5 7.5"/></svg></a>
+          </article>
+          <article class="alt">
+            <div class="alt-h"><b>Affinity</b><div class="alt-p">חינמי בבסיס<small>בלי מנוי חודשי</small></div></div>
+            <span class="save">חוסך עד <bdi class="num">185.97 ₪</bdi> לחודש</span>
+            <p>עורך תמונות, וקטור ועימוד בכלי אחד, עובד מקומית בלי ענן.</p>
+            <div class="give"><em>מוותרים על:</em>ענן, ופונטים של Adobe.</div>
+            <a href="https://affinity.serif.com" target="_blank" rel="noopener">לאתר Affinity<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="scale:-1 1"><path d="M5 2.5H2.5v9h9V9M8 2.5h3.5V6M11.5 2.5 6.5 7.5"/></svg></a>
+          </article>
+          <article class="alt">
+            <div class="alt-h"><b>Photography plan</b><div class="alt-p"><bdi class="num">$19.99</bdi><small>לחודש, כ-<bdi class="num">61.97 ₪</bdi></small></div></div>
+            <span class="save">חוסך <bdi class="num">124.00 ₪</bdi> לחודש</span>
+            <p><bdi>Photoshop + Lightroom</bdi>, אצל אותו ספק ובלי לעבור כלי.</p>
+            <div class="give"><em>מוותרים על:</em><bdi>Illustrator + Premiere</bdi>.</div>
+            <a href="https://www.adobe.com/products/photoshop.html" target="_blank" rel="noopener">לאתר Adobe<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="scale:-1 1"><path d="M5 2.5H2.5v9h9V9M8 2.5h3.5V6M11.5 2.5 6.5 7.5"/></svg></a>
+          </article>
+          <article class="alt">
+            <div class="alt-h"><b>Figma Professional</b><div class="alt-p"><bdi class="num">$16</bdi><small>לחודש, כ-<bdi class="num">49.60 ₪</bdi></small></div></div>
+            <span class="save">חוסך <bdi class="num">136.37 ₪</bdi> לחודש</span>
+            <p>מתאים לעיצוב ממשקים ומערכות עיצוב, עם עבודת צוות מובנית.</p>
+            <div class="give"><em>מוותרים על:</em>עריכת תמונות.</div>
+            <a href="https://www.figma.com" target="_blank" rel="noopener">לאתר Figma<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="scale:-1 1"><path d="M5 2.5H2.5v9h9V9M8 2.5h3.5V6M11.5 2.5 6.5 7.5"/></svg></a>
+          </article>
+        </div>
+        <div class="loading" id="loading">
+          <div class="ld-top"><span class="spin"></span>מחפש חלופות עדכניות<span class="state-tag">מצב טעינה</span><span class="checked" style="margin-inline-start:auto">החיפוש לוקח כחצי דקה, <bdi class="num" id="ldsec">18</bdi> מתוך <bdi class="num">30</bdi> שניות</span></div>
+          <div class="prog"><i id="ldbar" style="--pp:60%"></i></div>
+          <div class="sk-row"><div class="sk"><i></i><i></i><i></i></div><div class="sk"><i></i><i></i><i></i></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="empty rv" style="--i:8" aria-label="מצב ריק">
+    <span class="state-tag">מצב ריק, מוצג כדוגמה</span>
+    <svg class="ill" viewBox="0 0 76 76" fill="none" aria-hidden="true"><rect x="8" y="18" width="60" height="42" rx="9" fill="oklch(0.962 0.02 205)" stroke="oklch(0.37 0.07 215)" stroke-width="2"/><path d="m11 24 27 20 27-20" stroke="oklch(0.37 0.07 215)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="18" r="9" fill="oklch(0.78 0.14 50)" stroke="oklch(0.99 0 0)" stroke-width="2.5"/><path d="M60 13.5v9M55.5 18h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    <div>
+      <h3>עוד לא חוברה תיבת Gmail</h3>
+      <p>נסרוק חשבוניות, קבלות והודעות חידוש, ונבנה מהן את הלוח: כמה אתה משלם, על מה, ומה מתחדש בקרוב. הגישה לקריאה בלבד.</p>
+    </div>
+    <div class="acts"><button class="btn primary">חבר Gmail</button><button class="btn">איך זה עובד</button></div>
+  </section>
+  <footer>כל הסכומים בשקלים לפי שער של $1 = 3.10 ₪, בערך.</footer>
+</main>
+
+<script>
+const USE={unk:'לא ידוע',daily:'כל יום',some:'לפעמים',rare:'כמעט לא',none:'לא בשימוש'};
+const ORDER={none:0,rare:1,unk:2,some:3,daily:4};
+const TODAY=new Date('2026-10-19T00:00:00');
+const A1='pinhas.k@gmail.com',A2='family.kroyzer@gmail.com';
+const SUBS=[
+ {id:'adobe',name:'Adobe Creative Cloud',prov:'Adobe',cat:'עיצוב',price:'$59.99',amt:59.99*3.1,per:'חודשי',m:185.97,acct:A1,use:'rare',last:'2026-10-03',next:'2026-11-03',h:25,mono:'Ai',usd:true},
+ {name:'Netflix',prov:'Netflix',cat:'סטרימינג',price:'69.90 ₪',amt:69.9,per:'חודשי',m:69.90,acct:A2,use:'daily',last:'2026-09-22',next:'2026-10-22',h:20,mono:'N'},
+ {name:'ChatGPT Plus',prov:'OpenAI',cat:'כלי AI',price:'$20',amt:62,per:'חודשי',m:62.00,acct:A1,use:'daily',last:'2026-09-28',next:'2026-10-28',h:165,mono:'GP',usd:true},
+ {name:'Canva Pro',prov:'Canva',cat:'עיצוב',price:'54.90 ₪',amt:54.9,per:'חודשי',m:54.90,acct:A1,use:'some',last:'2026-10-11',next:'2026-11-11',h:215,mono:'Cv'},
+ {name:'Google One 2TB',prov:'Google',cat:'אחסון ענן',price:'39.99 ₪',amt:39.99,per:'חודשי',m:39.99,acct:A2,use:'unk',last:'2026-10-01',next:'2026-11-01',h:255,mono:'G1'},
+ {name:'Dropbox Plus',prov:'Dropbox',cat:'אחסון ענן',price:'$11.99',amt:37.17,per:'חודשי',m:37.17,acct:A1,use:'none',last:'2026-09-25',next:'2026-10-25',h:250,mono:'Db',usd:true},
+ {name:'YouTube Premium',prov:'Google',cat:'סטרימינג',price:'33.90 ₪',amt:33.9,per:'חודשי',m:33.90,acct:A2,use:'some',last:'2026-10-14',next:'2026-11-14',h:15,mono:'YT'},
+ {name:'Microsoft 365 Personal',prov:'Microsoft',cat:'תוכנה',price:'299 ₪',amt:299,per:'שנתי',m:24.92,acct:A1,use:'some',last:'2026-01-06',next:'2027-01-06',h:145,mono:'M3'},
+ {name:'Spotify Premium',prov:'Spotify',cat:'סטרימינג',price:'23.90 ₪',amt:23.9,per:'חודשי',m:23.90,acct:A2,use:'daily',last:'2026-10-17',next:'2026-11-17',h:155,mono:'Sp'},
+ {name:'iCloud+ 200GB',prov:'Apple',cat:'אחסון ענן',price:'10.90 ₪',amt:10.9,per:'חודשי',m:10.90,acct:A1,use:'unk',last:'2026-10-09',next:'2026-11-09',h:240,mono:'iC'},
+];
+SUBS.forEach((s,i)=>{if(!s.id)s.id='s'+i});
+const CANC=[
+ {name:'Disney+',prov:'Disney',cat:'סטרימינג',h:240,mono:'D+',when:'03.2026'},
+ {name:'Notion Plus',prov:'Notion',cat:'תוכנה',h:60,mono:'No',when:'06.2026'},
+];
+const st={mode:'active',acct:'',cat:'',waste:false,key:'m',dir:-1,sel:'adobe'};
+const $=s=>document.querySelector(s);
+const f2=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const dmy=iso=>{const [y,m,d]=iso.split('-');return d+'.'+m+'.'+y};
+const dm=iso=>{const [y,m,d]=iso.split('-');return d+'.'+m};
+const days=iso=>Math.round((new Date(iso+'T00:00:00')-TODAY)/864e5);
+const money=n=>`<bdi class="num">${f2(n)}<span class="cur">₪</span></bdi>`;
+const priceHtml=s=>{const p=s.price.includes('₪')?`<bdi class="num">${s.price.replace(' ₪','')}<span class="cur">₪</span></bdi>`:`<bdi class="num">${s.price}</bdi>`;return p+`<small>${s.per==='שנתי'?'/ שנה':'/ חודש'}</small>`};
+const meter='<span class="meter"><span></span><span></span><span></span><span></span></span>';
+const useChip=s=>`<label class="use" data-s="${s.use}">${meter}<select data-id="${s.id}" aria-label="שימוש: ${s.name}">${Object.entries(USE).map(([k,v])=>`<option value="${k}"${k===s.use?' selected':''}>${v}</option>`).join('')}</select></label>`;
+const cats=[...new Set(SUBS.map(s=>s.cat))];
+$('#fCat').insertAdjacentHTML('beforeend',cats.map(c=>`<option>${c}</option>`).join(''));
+
+function totals(){
+  const w=SUBS.filter(s=>s.use==='rare'||s.use==='none');
+  const wm=w.reduce((a,s)=>a+s.m,0);
+  document.querySelectorAll('[data-waste-m]').forEach(e=>e.textContent=f2(wm));
+  document.querySelectorAll('[data-waste-y]').forEach(e=>e.textContent=f2(Math.round(wm*12*100)/100));
+  document.querySelectorAll('[data-waste-n]').forEach(e=>e.textContent=w.length);
+  document.querySelector('[data-waste-names]').innerHTML=w.length?w.map(s=>`<bdi>${s.name}</bdi>`).join(', '):'אין כרגע';
+  const pct=Math.round(wm/543.55*100);
+  document.querySelector('[data-waste-pct]').textContent=pct+'%';
+  $('#wbar').style.width=pct+'%';
+}
+function miniBars(){
+  const cc={'עיצוב':'oklch(0.37 0.07 215)','סטרימינג':'oklch(0.55 0.1 205)','כלי AI':'oklch(0.7 0.09 190)','אחסון ענן':'oklch(0.8 0.05 200)','תוכנה':'oklch(0.88 0.03 210)'};
+  const by={};SUBS.forEach(s=>by[s.cat]=(by[s.cat]||0)+s.m);
+  const ent=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  $('#catBar').innerHTML=ent.map(([k,v])=>`<i title="${k}" style="--c:${cc[k]};flex:${v}"></i>`).join('');
+  $('#catLeg').innerHTML=ent.slice(0,3).map(([k,v])=>`<span style="--c:${cc[k]}">${k}</span>`).join('');
+  const uc={daily:'var(--daily)',some:'var(--some)',rare:'var(--rare)',none:'var(--none)',unk:'var(--line2)'};
+  const cnt={};SUBS.forEach(s=>cnt[s.use]=(cnt[s.use]||0)+1);
+  const ks=['daily','some','unk','rare','none'].filter(k=>cnt[k]);
+  $('#useBar').innerHTML=ks.map(k=>`<i style="--c:${uc[k]};flex:${cnt[k]}"></i>`).join('');
+  $('#useLeg').innerHTML=ks.map(k=>`<span style="--c:${uc[k]}">${USE[k]} <bdi class="num">${cnt[k]}</bdi></span>`).join('');
+}
+function renderTl(){
+  const items=SUBS.map(s=>({s,d:days(s.next)})).filter(x=>x.d>=0&&x.d<=30).sort((a,b)=>a.d-b.d);
+  const col=u=>({daily:'var(--daily)',some:'var(--some)',rare:'var(--rare)',none:'var(--none)',unk:'var(--line2)'}[u]);
+  let h='<div class="tl-axis"></div><div class="tl-ticks">'+[0,7,14,21,28].map(d=>`<span style="inset-inline-start:${d/30*100}%"></span>`).join('')+'</div><span class="tl-cap s">היום<br><bdi class="num">19.10</bdi></span><span class="tl-cap e">עוד 30 יום<br><bdi class="num">18.11</bdi></span>';
+  h+=items.map((x,i)=>{
+    const s=x.s,warn=s.use==='rare'||s.use==='none';
+    const amt=s.usd?`<bdi class="num">${s.price}</bdi>`:`<bdi class="num">${s.price}</bdi>`;
+    return `<div class="tl-item ${i%2?'dn':'up'}" style="--p:${x.d/30*100};--c:${warn?col(s.use):'var(--accent-2)'}"><span class="tl-stem"></span><span class="tl-dot"></span><div class="tl-lab${warn?' warn':''}"><b>${s.name}</b><small><bdi class="num">${dm(s.next)}</bdi>${amt}</small></div></div>`}).join('');
+  $('#tl').innerHTML=h;
+}
+function renderRows(){
+  const tb=$('#rows');
+  if(st.mode==='cancelled'){
+    tb.innerHTML=CANC.map(c=>`<tr><td class="c-svc"><div class="svc"><div class="mono" style="--h:${c.h};filter:grayscale(.6)">${c.mono}</div><div><b>${c.name}</b><small>${c.prov}</small></div></div></td><td class="cat c-cat">${c.cat}</td><td class="c-price">-</td><td class="r c-cost"><div class="mcost">-</div></td><td class="dt c-last">-</td><td class="dt c-next"><span class="cancelled-tag">בוטל <bdi class="num">${c.when}</bdi></span></td><td class="c-acct">-</td><td class="c-use"><span class="use" data-s="unk" style="cursor:default"><span class="meter"><span></span><span></span><span></span><span></span></span>בוטל</span></td></tr>`).join('');
+    $('#count').innerHTML='<bdi class="num">2</bdi> מנויים שבוטלו';$('#tfL').innerHTML='<b>2</b> מנויים שבוטלו';$('#tfR').textContent='';return;
+  }
+  let a=SUBS.filter(s=>(!st.acct||s.acct===st.acct)&&(!st.cat||s.cat===st.cat)&&(!st.waste||s.use==='rare'||s.use==='none'));
+  const k=st.key;
+  a.sort((x,y)=>{let r;
+    if(k==='use')r=ORDER[x.use]-ORDER[y.use];
+    else if(typeof x[k]==='number')r=x[k]-y[k];
+    else r=String(x[k]).localeCompare(String(y[k]),'he');
+    return r*st.dir});
+  const mx=Math.max(...SUBS.map(s=>s.m));
+  tb.innerHTML=a.map(s=>{const d=days(s.next),soon=d<=7;
+    return `<tr data-id="${s.id}" class="${s.id===st.sel&&!$('#drawer').hidden?'rowsel':''}"><td class="c-svc"><div class="svc"><div class="mono" style="--h:${s.h}">${s.mono}</div><div><b>${s.name}</b><small>${s.prov}</small></div></div></td><td class="cat c-cat">${s.cat}</td><td class="price c-price">${priceHtml(s)}</td><td class="r c-cost"><div class="mcost">${money(s.m)}<i class="${s.use==='rare'||s.use==='none'?'w':''}" style="--w:${s.m/mx*70}px"></i></div></td><td class="dt c-last"><bdi class="num">${dmy(s.last)}</bdi></td><td class="dt c-next${soon?' soon':''}"><bdi class="num">${dmy(s.next)}</bdi><small>${d<=0?'היום':d===1?'מחר':'בעוד '+d+' ימים'}</small></td><td class="c-acct"><span class="acct">${s.acct}</span></td><td class="c-use">${useChip(s)}</td></tr>`}).join('')||'<tr><td colspan="8" style="padding:30px;text-align:center;color:var(--ink3)">אין מנויים שמתאימים לסינון</td></tr>';
+  const sum=a.reduce((x,s)=>x+s.m,0);
+  $('#count').innerHTML=`מציג <bdi class="num">${a.length}</bdi> מתוך <bdi class="num">10</bdi>`;
+  $('#tfL').innerHTML=`<span><b>${a.length}</b> מנויים, ממוינים לפי ${{m:'עלות חודשית',name:'שם',cat:'קטגוריה',amt:'מחיר',last:'חיוב אחרון',next:'חידוש הבא',acct:'חשבון',use:'שימוש'}[k]}</span>`;
+  $('#tfR').innerHTML=`סה״כ בתצוגה <b>${money(sum)}</b> לחודש`;
+  document.querySelectorAll('thead th[data-k]').forEach(th=>{if(th.dataset.k===k)th.setAttribute('aria-sort',st.dir<0?'descending':'ascending');else th.removeAttribute('aria-sort')});
+}
+function renderAll(){miniBars();totals();renderTl();renderRows();$('#fchip').classList.toggle('on',st.waste)}
+document.addEventListener('change',e=>{
+  const sel=e.target.closest('select[data-id]');
+  if(sel){const s=SUBS.find(x=>x.id===sel.dataset.id);s.use=sel.value;sel.closest('.use').dataset.s=s.use;
+    if(s.id==='adobe'){$('#drUse').dataset.s=s.use;$('#drUse select').value=s.use}
+    miniBars();totals();renderTl();return}
+  if(e.target.closest('#drUse')){const s=SUBS[0];s.use=e.target.value;$('#drUse').dataset.s=s.use;renderAll()}
+});
+$('#fAcct').onchange=e=>{st.acct=e.target.value;renderRows()};
+$('#fCat').onchange=e=>{st.cat=e.target.value;renderRows()};
+$('#mSort').onchange=e=>{st.key=e.target.value;st.dir=e.target.value==='m'?-1:1;renderRows()};
+document.querySelectorAll('thead th[data-k] button').forEach(b=>b.onclick=()=>{const k=b.parentElement.dataset.k;if(st.key===k)st.dir*=-1;else{st.key=k;st.dir=(k==='m'||k==='amt')?-1:1}renderRows()});
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));st.mode=b.dataset.mode;renderRows()});
+$('#reviewBtn').onclick=()=>{st.waste=true;st.mode='active';document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode==='active'));renderAll();$('#tbl').scrollIntoView({behavior:'smooth',block:'center'})};
+$('#fchip button').onclick=()=>{st.waste=false;renderAll()};
+$('#rows').addEventListener('click',e=>{
+  if(e.target.closest('.use'))return;
+  const tr=e.target.closest('tr[data-id]');if(!tr)return;
+  if(tr.dataset.id==='adobe'){const d=$('#drawer');d.hidden=false;st.sel='adobe';renderRows();d.scrollIntoView({behavior:'smooth',block:'start'})}
+});
+$('#drClose').onclick=()=>{$('#drawer').hidden=true;renderRows()};
+$('#scanBtn').onclick=function(){const b=this;b.disabled=true;b.lastChild.textContent='סורק...';setTimeout(()=>{b.disabled=false;b.lastChild.textContent='סרוק עכשיו'},1800)};
+$('#note').oninput=()=>{$('#saved').textContent='נשמר...';clearTimeout(window._t);window._t=setTimeout(()=>$('#saved').textContent='נשמר אוטומטית',700)};
+$('#findBtn').onclick=function(){
+  const L=$('#loading'),alts=$('#alts');alts.style.opacity='.35';L.hidden=false;this.disabled=true;
+  let s=0;const iv=setInterval(()=>{s+=3;$('#ldsec').textContent=Math.min(s,30);$('#ldbar').style.setProperty('--pp',Math.min(s/30*100,100)+'%');
+    if(s>=30){clearInterval(iv);alts.style.opacity='1';this.disabled=false;L.hidden=true}},300);
+};
+renderAll();
+</script>
+</body>
+</html>

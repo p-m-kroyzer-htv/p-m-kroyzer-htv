@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חדר בקרה - מנויים</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<style>
+:root{
+  --bg: oklch(0.155 0.008 255);
+  --bg-2: oklch(0.185 0.009 255);
+  --panel: oklch(0.205 0.01 255);
+  --panel-2: oklch(0.235 0.011 255);
+  --rule: oklch(0.3 0.012 255);
+  --rule-soft: oklch(0.255 0.011 255);
+  --ink: oklch(0.93 0.008 250);
+  --ink-2: oklch(0.74 0.012 250);
+  --ink-3: oklch(0.56 0.014 252);
+  --amber: oklch(0.82 0.16 78);
+  --amber-dim: oklch(0.82 0.16 78 / .14);
+  --red: oklch(0.7 0.2 24);
+  --red-dim: oklch(0.7 0.2 24 / .15);
+  --green: oklch(0.8 0.17 155);
+  --green-dim: oklch(0.8 0.17 155 / .13);
+  --steel: oklch(0.62 0.05 245);
+  --steel-dim: oklch(0.62 0.05 245 / .16);
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --sans: 'IBM Plex Sans Hebrew', 'Heebo', system-ui, sans-serif;
+  --r: 4px;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg)}
+body{
+  font:400 13px/1.55 var(--sans); color:var(--ink); background:var(--bg);
+  background-image:
+    radial-gradient(900px 380px at 78% -60px, oklch(0.5 0.13 70 / .16), transparent 70%),
+    linear-gradient(oklch(1 0 0 / .022) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / .022) 1px, transparent 1px);
+  background-size:auto, 28px 28px, 28px 28px;
+  -webkit-font-smoothing:antialiased; min-height:100vh;
+}
+.num,bdi.num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;letter-spacing:0}
+.cur{font-family:var(--sans);font-weight:400;color:var(--ink-3);margin-inline-start:.2em;font-size:.72em}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:1.5px solid var(--amber);outline-offset:2px}
+.wrap{max-width:1440px;margin-inline:auto;padding:0 28px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:oklch(0.15 0.008 255 / .92);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:52px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;white-space:nowrap}
+.brand svg{width:22px;height:22px}
+.nav{display:flex;gap:2px;height:100%}
+.nav a{display:flex;align-items:center;padding:0 14px;color:var(--ink-3);text-decoration:none;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a[aria-current]{color:var(--ink);border-color:var(--amber)}
+.scan{margin-inline-start:auto;display:flex;align-items:center;gap:14px}
+.scan-status{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-size:12px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 var(--green);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 oklch(0.8 0.17 155 / .55)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.btn{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border:1px solid var(--rule);border-radius:var(--r);background:var(--panel);color:var(--ink);font-weight:500;font-size:12.5px;white-space:nowrap;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--panel-2);border-color:oklch(0.4 0.014 255)}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:oklch(0.2 0.03 70);font-weight:600}
+.btn.primary:hover{background:oklch(0.87 0.15 80)}
+.btn.danger{color:var(--red);border-color:oklch(0.7 0.2 24 / .4)}
+.btn.danger:hover{background:var(--red-dim)}
+.btn svg{width:13px;height:13px}
+.btn.scanning svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(-360deg)}}
+.exit{color:var(--ink-3);font-size:12px;text-decoration:none}
+.exit:hover{color:var(--ink)}
+
+/* section scaffolding */
+main{padding-block:22px 64px;display:grid;gap:14px}
+.panel{background:linear-gradient(var(--panel),var(--bg-2));border:1px solid var(--rule);border-radius:6px}
+.ph{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--rule-soft);min-height:42px}
+.ph h2{font-size:12px;font-weight:600;color:var(--ink-2)}
+.ph .sub{color:var(--ink-3);font-size:12px}
+.ph .end{margin-inline-start:auto;display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:12px}
+.tag{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);border:1px solid var(--rule);border-radius:3px;padding:0 5px}
+
+/* reveal */
+.rv{animation:rv .6s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes rv{from{opacity:0;transform:translateY(8px)}}
+.rv:nth-child(1){animation-delay:.02s}.rv:nth-child(2){animation-delay:.1s}.rv:nth-child(3){animation-delay:.18s}.rv:nth-child(4){animation-delay:.26s}.rv:nth-child(5){animation-delay:.34s}.rv:nth-child(6){animation-delay:.42s}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(300px,4fr) 8fr;overflow:hidden}
+.total{padding:20px 22px;border-inline-end:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:12px;color:var(--ink-3);font-weight:500}
+.big{font-family:var(--mono);font-weight:500;font-size:54px;line-height:1.05;letter-spacing:-.02em;direction:ltr;text-align:end}
+.big .cur{font-size:.36em;margin-inline-start:.3em;letter-spacing:0}
+.total .facts{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:auto;border-top:1px solid var(--rule-soft);padding-top:12px}
+.fact b{display:block;font-family:var(--mono);font-weight:500;font-size:18px;direction:ltr;text-align:end}
+.fact span.lbl{display:block}
+.fact+.fact{border-inline-start:1px solid var(--rule-soft);padding-inline-start:16px}
+.leak{padding:20px 24px 18px;display:flex;flex-direction:column;gap:14px;position:relative}
+.leak-head{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.leak-num{font-family:var(--mono);font-weight:600;font-size:76px;line-height:.95;letter-spacing:-.03em;direction:ltr;color:var(--amber);text-shadow:0 0 38px oklch(0.8 0.16 70 / .35)}
+.leak-num .cur{font-size:.3em;color:var(--amber);opacity:.75}
+.leak-side{display:grid;gap:2px;padding-bottom:6px}
+.leak-side .pct{font-family:var(--mono);font-size:22px;font-weight:500;direction:ltr;text-align:end}
+.leak-side .pct small{font-family:var(--sans);font-size:12px;color:var(--ink-3);font-weight:400}
+.leak-cta{margin-inline-start:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-bottom:4px}
+.leak-cta p{font-size:12px;color:var(--ink-3)}
+.meter-wrap{position:relative;padding-top:26px}
+.bracket{position:absolute;top:0;height:20px;border:1px solid var(--amber);border-bottom:0;border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;font-size:11px;color:var(--amber);background:linear-gradient(var(--amber-dim),transparent)}
+.bracket span{transform:translateY(-1px);background:var(--bg-2);padding:0 6px;margin-top:-8px;font-weight:500}
+.meter{display:flex;gap:2px;height:30px;direction:rtl}
+.seg{flex:0 0 auto;text-overflow:clip;position:relative;border-radius:2px;min-width:3px;transition:flex-basis .5s cubic-bezier(.2,.7,.2,1);overflow:hidden;display:flex;align-items:center;padding-inline:7px;font-size:11px;font-weight:500;white-space:nowrap;transform-origin:right;animation:grow .9s cubic-bezier(.2,.7,.2,1) backwards .3s}
+@keyframes grow{from{transform:scaleX(0)}}
+.seg.none{background:var(--red);color:oklch(0.2 0.05 25)}
+.seg.rarely{background:var(--amber);color:oklch(0.22 0.04 70)}
+.seg.unknown{background:repeating-linear-gradient(135deg,oklch(0.42 0.015 255) 0 3px,oklch(0.3 0.012 255) 3px 6px);color:var(--ink)}
+.seg.sometimes{background:oklch(0.5 0.07 200 / .55);color:var(--ink)}
+.seg.daily{background:oklch(0.62 0.13 155 / .5);color:var(--ink)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-3);padding-top:5px;direction:rtl}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.legend i.none{background:var(--red)}.legend i.rarely{background:var(--amber)}
+.legend i.unknown{background:repeating-linear-gradient(135deg,oklch(0.5 0.015 255) 0 2px,oklch(0.3 0.012 255) 2px 4px)}
+.legend i.sometimes{background:oklch(0.5 0.07 200 / .8)}.legend i.daily{background:oklch(0.62 0.13 155 / .8)}
+.legend b{font-family:var(--mono);font-weight:500;color:var(--ink);direction:ltr;unicode-bidi:isolate}
+
+/* row 2 */
+.row2{display:grid;grid-template-columns:4fr 8fr;gap:14px}
+.chart{padding:14px 16px 12px;display:grid;grid-template-columns:34px 1fr;gap:0 4px;height:calc(100% - 42px)}
+.yaxis{display:flex;flex-direction:column-reverse;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-3);height:128px;direction:ltr;text-align:end;padding-bottom:0}
+.plot{position:relative;height:128px;border-bottom:1px solid var(--rule)}
+.grid-l{position:absolute;inset-inline:0;border-top:1px dashed var(--rule-soft)}
+.bars{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;padding-inline:8px}
+.bar{flex:1;max-width:46px;display:flex;flex-direction:column-reverse;gap:1px;position:relative;transform-origin:bottom;animation:up .8s cubic-bezier(.2,.7,.2,1) backwards .35s}
+@keyframes up{from{transform:scaleY(0)}}
+.bar .s{background:oklch(0.5 0.045 245);min-height:2px;border-radius:1px}
+.bar .s.rarely{background:var(--amber)}.bar .s.none{background:var(--red)}
+.bar .s.unknown{background:repeating-linear-gradient(135deg,oklch(0.46 0.015 255) 0 2px,oklch(0.34 0.012 255) 2px 4px)}
+.bar .v{position:absolute;bottom:100%;inset-inline:-12px;text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--ink-2);padding-bottom:3px;direction:ltr}
+.xl{grid-column:2;display:flex;justify-content:space-around;gap:8px;padding:6px 8px 0}
+.xl div{flex:1;max-width:46px;text-align:center;font-size:10.5px;color:var(--ink-3);line-height:1.25;white-space:nowrap;overflow:visible}
+.xl div span{display:block;font-size:11px;color:var(--ink-2);margin-bottom:1px}
+
+.strip-wrap{padding:14px 16px 16px;display:grid;gap:12px}
+.strip{display:flex;gap:2px;direction:rtl;margin-top:12px}
+.mo{position:absolute;top:-16px;inset-inline-start:0;font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.day{flex:1;min-width:0;border:1px solid var(--rule-soft);border-radius:3px;height:62px;display:flex;flex-direction:column;align-items:center;padding-top:5px;position:relative;background:oklch(1 0 0 / .012)}
+.day .d{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.day .w{font-size:9.5px;color:var(--ink-3);opacity:.7;line-height:1}
+.day.sat{background:oklch(1 0 0 / .03)}
+.day.today{border-color:var(--ink-2);background:oklch(1 0 0 / .06)}
+.day.today .d{color:var(--ink);font-weight:600}
+.day.today::after{content:"היום";position:absolute;top:100%;margin-top:3px;font-size:10px;color:var(--ink);white-space:nowrap}
+.day.mstart{border-inline-start:1px solid var(--ink-3)}
+.dots{margin-top:auto;margin-bottom:7px;display:flex;flex-direction:column;gap:3px;align-items:center}
+.dot{border-radius:50%;background:var(--steel);box-shadow:0 0 0 3px var(--steel-dim);cursor:default}
+.dot.rarely{background:var(--amber);box-shadow:0 0 0 3px var(--amber-dim)}
+.dot.none{background:var(--red);box-shadow:0 0 0 3px var(--red-dim)}
+.dot.daily{background:var(--green);box-shadow:0 0 0 3px var(--green-dim)}
+.dot.unknown{background:var(--ink-3);box-shadow:0 0 0 3px oklch(1 0 0 / .06)}
+.mlabels{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3);margin-bottom:-6px;direction:rtl}
+.rlist{display:grid;grid-template-columns:repeat(3,1fr);gap:0 22px;margin-top:10px}
+.ritem{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:12.5px}
+.ritem .dt{font-family:var(--mono);color:var(--ink-3);font-size:11.5px;direction:ltr}
+.ritem .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.ritem .am{font-family:var(--mono);font-size:12px;direction:ltr;text-align:end;white-space:nowrap}
+.ritem .am small{color:var(--ink-3);font-size:10.5px}
+.ritem .i{width:6px;height:6px;border-radius:50%;display:inline-block;margin-inline-end:7px;background:var(--steel)}
+.ritem .i.rarely{background:var(--amber)}.ritem .i.none{background:var(--red)}.ritem .i.daily{background:var(--green)}.ritem .i.unknown{background:var(--ink-3)}
+
+/* table */
+.filters{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:10px 16px;border-bottom:1px solid var(--rule-soft)}
+.fg{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fg .lbl{margin-inline-end:4px}
+.chip{height:26px;padding:0 10px;border:1px solid var(--rule);border-radius:13px;color:var(--ink-2);font-size:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.chip:hover{border-color:oklch(0.42 0.014 255);color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.chip .n{font-family:var(--mono);font-size:10.5px;opacity:.6}
+.chip.ltr{font-family:var(--mono);font-size:11.5px;direction:ltr}
+.switch{margin-inline-start:auto;display:flex;align-items:center;gap:8px;color:var(--ink-2);font-size:12px}
+.sw{width:30px;height:16px;border-radius:8px;background:var(--rule);position:relative;transition:.2s}
+.sw::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:12px;height:12px;border-radius:50%;background:var(--ink-2);transition:.2s}
+.switch[aria-checked=true] .sw{background:var(--amber)}
+.switch[aria-checked=true] .sw::after{inset-inline-start:16px;background:oklch(0.2 0.03 70)}
+
+.tbl{font-size:13px}
+.tr{display:grid;grid-template-columns:minmax(200px,1.7fr) 92px 104px 62px 112px 92px 96px minmax(176px,1.1fr) 132px;align-items:center;gap:0 12px;padding:0 16px;min-height:44px;border-bottom:1px solid var(--rule-soft);position:relative}
+.tr.th{min-height:32px;font-size:11px;color:var(--ink-3);font-weight:500;background:oklch(1 0 0 / .02);position:sticky;top:52px;z-index:5}
+.tr.row:hover{background:oklch(1 0 0 / .028)}
+.tr.row.hot{background:linear-gradient(270deg,var(--amber-dim),transparent 40%)}
+.tr.row.hot.r-none{background:linear-gradient(270deg,var(--red-dim),transparent 40%)}
+.c-amt{position:relative;text-align:end;font-family:var(--mono);font-weight:500;font-size:13.5px;direction:ltr;display:flex;justify-content:flex-start;align-items:center;height:100%}
+.c-amt .db{position:absolute;inset-block:12px;inset-inline-end:0;background:var(--steel-dim);border-inline-end:2px solid oklch(0.62 0.05 245 / .6);z-index:0;border-radius:1px 0 0 1px}
+.c-amt .db.rarely{background:var(--amber-dim);border-color:var(--amber)}.c-amt .db.none{background:var(--red-dim);border-color:var(--red)}
+.c-amt .t{position:relative;z-index:1;padding-inline-end:6px;margin-inline-start:auto}
+.svc{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none}
+.mono-sq{width:26px;height:26px;border-radius:5px;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:12px;flex:none;color:oklch(0.16 0.01 255)}
+.svc b{font-weight:600;display:block;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc small{display:block;color:var(--ink-3);font-size:11px;line-height:1.2}
+.svc:hover b{text-decoration:underline;text-decoration-color:var(--ink-3);text-underline-offset:3px}
+.c-cat{color:var(--ink-2);font-size:12.5px}
+.c-orig{font-family:var(--mono);font-size:12.5px;direction:ltr;text-align:end;color:var(--ink-2)}
+.c-per{font-size:12px;color:var(--ink-3)}
+.c-date{font-family:var(--mono);font-size:12px;color:var(--ink-2);direction:ltr;text-align:end}
+.c-date.soon{color:var(--ink)}
+.c-acct{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);direction:ltr;text-align:end;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr .m{display:none}
+
+.use{position:relative}
+.ub{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 8px;border:1px solid var(--rule);border-radius:var(--r);font-size:12px;font-weight:500;white-space:nowrap;background:oklch(1 0 0 / .02);width:100%;max-width:132px;transition:.15s}
+.ub:hover{border-color:oklch(0.45 0.014 255)}
+.ub .car{margin-inline-start:auto;width:8px;height:8px;color:var(--ink-3)}
+.sig{display:inline-flex;align-items:flex-end;gap:1.5px;height:11px;flex:none;direction:ltr}
+.sig b{width:2.5px;border-radius:1px;background:oklch(1 0 0 / .16)}
+.sig b:nth-child(1){height:30%}.sig b:nth-child(2){height:52%}.sig b:nth-child(3){height:76%}.sig b:nth-child(4){height:100%}
+[data-u=daily] .sig b{background:var(--green)}
+[data-u=sometimes] .sig b:nth-child(-n+3){background:oklch(0.78 0.09 200)}
+[data-u=rarely] .sig b:nth-child(-n+2){background:var(--amber)}
+[data-u=none] .sig b:nth-child(1){background:var(--red)}
+[data-u=daily].ub{color:var(--green);border-color:oklch(0.8 0.17 155 / .35);background:var(--green-dim)}
+[data-u=sometimes].ub{color:oklch(0.82 0.08 200);border-color:oklch(0.78 0.09 200 / .3)}
+[data-u=rarely].ub{color:var(--amber);border-color:oklch(0.82 0.16 78 / .45);background:var(--amber-dim)}
+[data-u=none].ub{color:var(--red);border-color:oklch(0.7 0.2 24 / .5);background:var(--red-dim)}
+[data-u=unknown].ub{color:var(--ink-3);border-style:dashed}
+.menu{position:absolute;top:calc(100% + 4px);inset-inline-start:0;z-index:30;min-width:150px;background:oklch(0.23 0.012 255);border:1px solid oklch(0.4 0.014 255);border-radius:6px;padding:4px;box-shadow:0 14px 34px oklch(0 0 0 / .55);display:none}
+.menu.open{display:block}
+.menu button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 8px;border-radius:4px;font-size:12.5px;text-align:start}
+.menu button:hover{background:oklch(1 0 0 / .07)}
+.menu button[aria-checked=true]{background:oklch(1 0 0 / .05);font-weight:600}
+.tr.row:nth-last-child(-n+3) .menu{top:auto;bottom:calc(100% + 4px)}
+.tfoot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-size:12px;color:var(--ink-3);background:oklch(1 0 0 / .02);border-radius:0 0 6px 6px}
+.tfoot b{font-family:var(--mono);font-weight:500;color:var(--ink);direction:ltr;unicode-bidi:isolate}
+.cancelled-row{opacity:.62}
+.cancelled-row .c-amt .t{color:var(--ink-3)}
+.badge-x{font-size:11px;color:var(--ink-3);border:1px solid var(--rule);border-radius:3px;padding:1px 6px;white-space:nowrap}
+
+/* detail */
+.detail{overflow:hidden}
+.dh{display:flex;align-items:center;gap:16px;padding:16px 18px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.dh .mono-sq{width:40px;height:40px;font-size:17px;border-radius:7px}
+.dh h3{font-size:20px;font-weight:600;line-height:1.2}
+.dh .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--ink-3);font-size:12px;margin-top:3px}
+.dh .meta span{direction:rtl}
+.dh .meta .ltr{font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
+.dh .kv{margin-inline-start:auto;display:flex;gap:26px}
+.kv .fact b{font-size:20px}
+.dgrid{display:grid;grid-template-columns:5fr 7fr}
+.dcol{padding:16px 18px;display:grid;gap:18px;align-content:start}
+.dcol+.dcol{border-inline-start:1px solid var(--rule)}
+.sec-t{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.hist{display:grid}
+.hr{display:grid;grid-template-columns:78px 66px 70px 1fr;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:12.5px}
+.hr.h{font-size:11px;color:var(--ink-3);padding-top:0}
+.hr .n{font-family:var(--mono);direction:ltr;text-align:end}
+.hr .p{color:var(--ink-2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hr .up{color:var(--amber);font-size:10.5px;font-family:var(--sans)}
+.spark{display:flex;align-items:center;gap:14px;margin-bottom:10px;padding:10px 12px;border:1px solid var(--rule-soft);border-radius:5px;background:oklch(1 0 0 / .018)}
+.spark svg{flex:1;height:44px;min-width:0;overflow:visible}
+.spark .t{font-size:11.5px;color:var(--ink-3);line-height:1.4;white-space:nowrap}
+.spark .t b{display:block;color:var(--amber);font-family:var(--mono);font-weight:500;font-size:14px;direction:ltr;text-align:end}
+textarea{width:100%;min-height:76px;resize:vertical;background:var(--bg);border:1px solid var(--rule);border-radius:5px;color:var(--ink);font:inherit;padding:9px 11px;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--amber)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.acts .link{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2);font-size:12.5px;text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:1px}
+.acts .link:hover{color:var(--ink);border-color:var(--ink-2)}
+.alt-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.alt-head .checked{font-size:12px;color:var(--ink-3);font-family:var(--sans)}
+.alt-head .checked b{font-family:var(--mono);font-weight:400;direction:ltr;unicode-bidi:isolate}
+.alts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.alt{border:1px solid var(--rule);border-radius:6px;padding:12px 13px 11px;display:grid;gap:9px;background:oklch(1 0 0 / .015);align-content:start;transition:border-color .15s,background .15s}
+.alt:hover{border-color:oklch(0.45 0.014 255);background:oklch(1 0 0 / .03)}
+.alt-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.alt h4{font-size:14.5px;font-weight:600;line-height:1.25}
+.alt h4 small{display:block;color:var(--ink-3);font-weight:400;font-size:11.5px;margin-top:2px}
+.delta{text-align:end;flex:none}
+.delta .pr{font-weight:500;font-size:15px;display:block}
+.delta .dl{font-size:11.5px;color:var(--green);font-weight:500;display:block}
+.cmp{height:6px;border-radius:3px;background:var(--steel-dim);position:relative;overflow:hidden}
+.cmp i{position:absolute;inset-block:0;inset-inline-start:0;background:var(--green);border-radius:3px;min-width:3px;transform-origin:right;animation:grow .8s cubic-bezier(.2,.7,.2,1) backwards .2s}
+.cmpl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3)}
+.cmpl b{font-family:var(--mono);font-weight:400;direction:ltr;unicode-bidi:isolate}
+.alt dl{display:grid;gap:5px;font-size:12px;line-height:1.45}
+.alt dt{font-size:10.5px;color:var(--ink-3);font-weight:600}
+.alt dt.give{color:var(--amber)}
+.alt dd{color:var(--ink-2)}
+.alt .go{font-size:12px;color:var(--ink-2);text-decoration:none;display:inline-flex;gap:6px;align-items:center;border-top:1px solid var(--rule-soft);padding-top:8px}
+.alt .go:hover{color:var(--ink)}
+.save{white-space:nowrap;font-size:11px;color:var(--green);font-family:var(--sans)}
+.save b{font-family:var(--mono);font-weight:500;direction:ltr;unicode-bidi:isolate}
+
+/* loading */
+.loading{display:grid;gap:12px}
+.prog{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--ink-2)}
+.prog .bar2{flex:1;height:3px;background:var(--rule);border-radius:2px;overflow:hidden;position:relative}
+.prog .bar2 i{position:absolute;inset-block:0;inset-inline-start:0;background:var(--amber);width:47%;box-shadow:0 0 10px var(--amber)}
+.prog.run .bar2 i{width:100%;animation:fill 3.6s linear}
+@keyframes fill{from{width:4%}}
+.prog .num{color:var(--ink-3);font-size:11px}
+.sk{border:1px solid var(--rule-soft);border-radius:6px;padding:12px 13px;display:grid;gap:9px}
+.sk i{display:block;height:9px;border-radius:2px;background:linear-gradient(90deg,var(--rule-soft) 30%,oklch(0.33 0.012 255) 50%,var(--rule-soft) 70%);background-size:300% 100%;animation:sh 1.6s linear infinite}
+@keyframes sh{from{background-position:100% 0}to{background-position:-100% 0}}
+.hidden{display:none!important}
+
+/* states */
+.states{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.state-body{padding:18px;display:grid;gap:12px}
+.empty{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding:18px}
+.empty .ill{width:64px;height:64px;border:1px dashed var(--rule);border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}
+.empty .ill svg{width:30px;height:30px}
+.empty h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.empty p{color:var(--ink-3);font-size:12.5px;margin-bottom:10px;max-width:46ch}
+.stamp{font-size:10.5px;font-family:var(--sans);color:var(--ink-3);border:1px solid var(--rule);border-radius:3px;padding:0 6px;margin-inline-start:auto}
+
+/* responsive */
+@media (max-width:1180px){
+  .hero{grid-template-columns:1fr}
+  .total{border-inline-end:0;border-bottom:1px solid var(--rule)}
+  .row2{grid-template-columns:1fr}
+  .chart{height:auto;padding-bottom:22px}
+  .rlist{grid-template-columns:repeat(2,1fr)}
+  .tr{grid-template-columns:minmax(170px,1.5fr) 80px 90px 52px 96px 84px 84px minmax(120px,1fr) 124px;gap:0 8px;padding:0 12px}
+  .c-acct{font-size:10.5px}
+  .dgrid{grid-template-columns:1fr}
+  .dcol+.dcol{border-inline-start:0;border-top:1px solid var(--rule)}
+}
+@media (max-width:860px){
+  .tr.th{display:none}
+  .tr.row{grid-template-columns:1fr 1fr;grid-template-areas:"svc amt" "cat orig" "renew use";gap:6px 12px;padding:12px 14px;align-items:center}
+  .tr .svc{grid-area:svc}.tr .c-amt{grid-area:amt;justify-self:end;justify-content:flex-start;height:auto;font-size:16px}
+  .c-amt .db{display:none}
+  .c-amt .t{padding:0;margin:0}
+  .tr .c-cat{grid-area:cat;font-size:11.5px;color:var(--ink-3)}
+  .tr .c-orig{grid-area:orig;justify-self:end;font-size:11.5px;color:var(--ink-3)}
+  .tr .c-per,.tr .c-last,.tr .c-acct{display:none}
+  .tr .c-date.next{grid-area:renew;text-align:start;direction:rtl;font-size:12px}
+  .tr .c-date.next .m{display:inline;color:var(--ink-3);font-family:var(--sans);margin-inline-end:6px}
+  .tr .use{grid-area:use;justify-self:end;width:100%;display:flex;justify-content:flex-end}
+  .ub{max-width:148px}
+  .menu{inset-inline-start:auto;inset-inline-end:0}
+  .tr.row .c-cat::after{content:""}
+  .tr .c-orig .per{display:inline;color:var(--ink-3);font-family:var(--sans)}
+}
+@media (max-width:640px){
+  .wrap{padding:0 14px}
+  .top .wrap{gap:12px;height:48px}
+  .brand span{display:none}
+  .nav a{padding:0 9px;font-size:12.5px}
+  .scan-status{display:none}
+  .exit{display:none}
+  .btn{padding:0 10px}
+  main{padding-top:14px}
+  .big{font-size:46px}
+  .leak{padding:16px}
+  .leak-num{font-size:58px}
+  .leak-cta{margin-inline-start:0;align-items:flex-start}
+  .leak-head{gap:12px}
+  .seg{font-size:0;padding:0}
+  .rlist{grid-template-columns:1fr}
+  .day{height:56px}
+  .day .w{display:none}
+  .day:not(.today):not(.has):not(.wk) .d{opacity:0}
+  .day.today::after{display:none}
+  .states{grid-template-columns:1fr}
+  .alts{grid-template-columns:1fr}
+  .dh .kv{margin-inline-start:0;width:100%}
+  .hr{grid-template-columns:70px 58px 62px 1fr;font-size:12px}
+  .filters{gap:10px}
+  .switch{margin-inline-start:0}
+  .empty{grid-template-columns:1fr}
+  .spark .t{white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="4" stroke="oklch(0.82 0.16 78)" stroke-width="1.4"/><path d="M5 16l4-5 3 3 6-8" stroke="oklch(0.82 0.16 78)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>מנויים</span>
+    </div>
+    <nav class="nav" aria-label="ראשי">
+      <a href="#board" aria-current="page">לוח מנויים</a>
+      <a href="#empty">חשבונות</a>
+    </nav>
+    <div class="scan">
+      <div class="scan-status"><span class="pulse"></span><span>סריקה אחרונה: היום <span class="num">08:14</span></span></div>
+      <button class="btn primary" id="scanBtn" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3"/></svg>
+        <span id="scanTxt">סרוק עכשיו</span>
+      </button>
+      <a class="exit" href="#">יציאה</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="board">
+
+  <!-- HERO -->
+  <section class="panel hero rv" aria-label="סיכום">
+    <div class="total">
+      <span class="lbl">סך עלות חודשית</span>
+      <div class="big" id="kTotal"></div>
+      <div class="facts">
+        <div class="fact"><span class="lbl">סך שנתי</span><b id="kYear"></b></div>
+        <div class="fact"><span class="lbl">מנויים פעילים</span><b id="kCount"></b></div>
+      </div>
+    </div>
+    <div class="leak">
+      <div class="leak-head">
+        <div>
+          <span class="lbl">דליפה: כסף שיוצא על מנויים שלא בשימוש או כמעט לא</span>
+          <div class="leak-num" id="kLeak"></div>
+        </div>
+        <div class="leak-side">
+          <div class="pct" id="kPct"></div>
+          <div class="lbl">מכלל ההוצאה החודשית</div>
+        </div>
+        <div class="leak-side">
+          <div class="pct" id="kLeakY"></div>
+          <div class="lbl">בשנה, אם כלום לא ישתנה</div>
+        </div>
+        <div class="leak-cta">
+          <button class="btn primary" type="button" id="reviewBtn">סקור לביטול</button>
+          <p id="leakNames"></p>
+        </div>
+      </div>
+      <div>
+        <div class="meter-wrap">
+          <div class="bracket" id="bracket"><span id="bracketTxt"></span></div>
+          <div class="meter" id="meter" role="img" aria-label="פילוח ההוצאה החודשית לפי שימוש"></div>
+          <div class="ticks"><span>0</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <!-- ROW 2 -->
+  <div class="row2">
+    <section class="panel rv" aria-label="עלות לפי קטגוריה">
+      <div class="ph"><h2>עלות חודשית לפי קטגוריה</h2><div class="end"><span class="num">₪</span></div></div>
+      <div class="chart">
+        <div class="yaxis"><span>0</span><span>100</span><span>200</span></div>
+        <div class="plot" id="plot"></div>
+        <div class="xl" id="xl"></div>
+      </div>
+    </section>
+
+    <section class="panel rv" aria-label="חידושים קרובים">
+      <div class="ph"><h2>חידושים ב-30 הימים הקרובים</h2><span class="sub"><span class="num">19.10</span> עד <span class="num">18.11</span></span>
+        <div class="end"><span id="rnCount" class="num"></span><span>חיובים</span><span class="tag" id="rnSum"></span></div></div>
+      <div class="strip-wrap">
+        
+        <div class="strip" id="strip"></div>
+        <div class="rlist" id="rlist"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- TABLE -->
+  <section class="panel rv" aria-label="רשימת מנויים">
+    <div class="ph"><h2>כל המנויים</h2><span class="sub">ממוין לפי עלות חודשית, מהגבוה לנמוך</span>
+      <div class="end"><span>שער <span class="num">$1 = 3.10</span><span class="cur" style="font-size:12px"> ₪</span></span></div></div>
+    <div class="filters">
+      <div class="fg" id="fAcct"><span class="lbl">חשבון</span></div>
+      <div class="fg" id="fCat"><span class="lbl">קטגוריה</span></div>
+      <button class="switch" id="swCancel" role="switch" aria-checked="false" type="button"><span class="sw"></span>מנויים שבוטלו <span class="num" style="color:var(--ink-3)">2</span></button>
+    </div>
+    <div class="tbl" role="table" aria-label="מנויים">
+      <div class="tr th" role="row">
+        <span>שירות</span><span>קטגוריה</span><span style="text-align:end">מחיר מקורי</span><span>תקופה</span><span style="text-align:end">₪ לחודש</span><span style="text-align:end">חיוב אחרון</span><span style="text-align:end">חידוש הבא</span><span style="text-align:end">חשבון Gmail</span><span>שימוש</span>
+      </div>
+      <div id="rows"></div>
+    </div>
+    <div class="tfoot"><span id="tfCount"></span><span>סך מוצג: <b id="tfSum"></b></span></div>
+  </section>
+
+  <!-- DETAIL -->
+  <section class="panel detail rv" id="detail" aria-label="מסך מנוי">
+    <div class="dh">
+      <div class="mono-sq" style="background:oklch(0.68 0.2 25)">A</div>
+      <div>
+        <h3>Adobe Creative Cloud</h3>
+        <div class="meta"><span>Adobe</span><span>עיצוב</span><span class="ltr">pinhas.k@gmail.com</span><span>חיוב חודשי</span></div>
+      </div>
+      <div class="use" style="margin-inline-start:6px"><button class="ub" data-u="rarely" type="button" id="dUse" style="width:auto"><i class="sig"><b></b><b></b><b></b><b></b></i><span>כמעט לא</span></button></div>
+      <div class="kv">
+        <div class="fact"><span class="lbl">לחודש</span><b><bdi class="num">185.97</bdi><span class="cur">₪</span></b></div>
+        <div class="fact"><span class="lbl">בשנה</span><b style="color:var(--amber)"><bdi class="num">2,231.64</bdi><span class="cur">₪</span></b></div>
+        <div class="fact"><span class="lbl">חידוש הבא</span><b><bdi class="num">03.11.2026</bdi></b></div>
+      </div>
+    </div>
+    <div class="dgrid">
+      <div class="dcol">
+        <div>
+          <div class="sec-t">היסטוריית חיובים</div>
+          <div class="spark">
+            <svg viewBox="0 0 160 44" preserveAspectRatio="none" aria-label="מגמת חיוב ב-4 חודשים" style="direction:ltr">
+              <defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="oklch(0.82 0.16 78)" stop-opacity=".28"/><stop offset="1" stop-color="oklch(0.82 0.16 78)" stop-opacity="0"/></linearGradient></defs>
+              <path d="M4 40 L56 12 L108 6 L156 8 L156 44 L4 44Z" fill="url(#sg)"/>
+              <polyline points="4,40 56,12 108,6 156,8" fill="none" stroke="oklch(0.82 0.16 78)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+              <circle cx="4" cy="40" r="2.4" fill="oklch(0.74 0.012 250)"/><circle cx="56" cy="12" r="2.4" fill="oklch(0.82 0.16 78)"/><circle cx="108" cy="6" r="2.4" fill="oklch(0.82 0.16 78)"/><circle cx="156" cy="8" r="3" fill="oklch(0.82 0.16 78)"/>
+            </svg>
+            <div class="t">מאז העלאת המחיר ביולי<b>+15.50 ₪ לחודש</b></div>
+          </div>
+          <div class="hist" role="table">
+            <div class="hr h"><span>תאריך</span><span style="text-align:end">סכום</span><span style="text-align:end">בשקלים</span><span>תוכנית</span></div>
+            <div class="hr"><span class="num">03.10.2026</span><span class="n">$59.99</span><span class="n">185.97</span><span class="p">Creative Cloud All Apps</span></div>
+            <div class="hr"><span class="num">03.09.2026</span><span class="n">$59.99</span><span class="n">187.17</span><span class="p">Creative Cloud All Apps</span></div>
+            <div class="hr"><span class="num">03.08.2026</span><span class="n">$59.99</span><span class="n">184.77</span><span class="p">Creative Cloud All Apps</span></div>
+            <div class="hr"><span class="num">03.07.2026</span><span class="n">$54.99</span><span class="n">170.47</span><span class="p">Creative Cloud All Apps <span class="up">לפני העלאת מחיר</span></span></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-t">הערות</div>
+          <textarea aria-label="הערות">נרשמתי לפרויקט של הלקוח באוגוסט, הפרויקט נגמר.</textarea>
+        </div>
+        <div class="acts">
+          <a class="link" href="#">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 3h4v4M13 3L7 9M6 4H3.5A.5.5 0 0 0 3 4.5v8a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V10"/></svg>
+            ניהול המנוי אצל הספק</a>
+          <span style="flex:1"></span>
+          <button class="btn danger" type="button">סמן כבוטל</button>
+          <button class="btn" type="button">זה לא מנוי</button>
+        </div>
+      </div>
+
+      <div class="dcol">
+        <div class="alt-head">
+          <div class="sec-t" style="margin:0">חלופות ל-Adobe CC</div>
+          <span class="checked" id="checkedAt">נבדק ב-<b>12.10.2026</b></span>
+          <button class="btn" id="findBtn" type="button" style="margin-inline-start:auto">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L13.5 13.5"/></svg>
+            מצא חלופות</button>
+        </div>
+        <div id="altLoading" class="loading hidden">
+          <div class="prog run"><span>מחפש חלופות ומשווה מחירים</span><div class="bar2"><i></i></div><span class="num">~30 שנ׳</span></div>
+          <div class="alts"><div class="sk"><i style="width:50%;height:13px"></i><i></i><i style="width:80%"></i><i style="width:60%"></i></div><div class="sk"><i style="width:44%;height:13px"></i><i></i><i style="width:70%"></i><i style="width:55%"></i></div><div class="sk"><i style="width:56%;height:13px"></i><i></i><i style="width:75%"></i><i style="width:50%"></i></div><div class="sk"><i style="width:40%;height:13px"></i><i></i><i style="width:82%"></i><i style="width:58%"></i></div></div>
+        </div>
+        <div class="alts" id="alts"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATES -->
+  <div class="states">
+    <section class="panel rv" id="empty" aria-label="מצב ריק">
+      <div class="ph"><h2>מצב ריק</h2><span class="stamp">דוגמה: עוד לא חובר חשבון</span></div>
+      <div class="empty">
+        <div class="ill"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6.5" width="25" height="19" rx="3"/><path d="M4.5 9l11.5 9 11.5-9"/></svg></div>
+        <div>
+          <h3>אין עדיין חשבון Gmail מחובר</h3>
+          <p>חבר תיבה אחת ונמצא בה חשבוניות, קבלות והודעות חידוש. הקריאה היא לקריאה בלבד, והסריקה הראשונה לוקחת כדקה.</p>
+          <button class="btn primary" type="button">חבר Gmail</button>
+        </div>
+      </div>
+    </section>
+    <section class="panel rv" aria-label="מצב טעינה">
+      <div class="ph"><h2>סריקה רצה</h2><span class="stamp">מצב טעינה</span></div>
+      <div class="state-body">
+        <div class="prog"><span>קורא חשבוניות מ-<span class="num">pinhas.k@gmail.com</span></span><div class="bar2"><i></i></div><span class="num">47%</span></div>
+        <div style="display:grid;gap:6px">
+          <div class="sk" style="grid-template-columns:26px 1fr 60px;align-items:center"><i style="width:26px;height:26px;border-radius:5px"></i><i style="width:60%"></i><i></i></div>
+          <div class="sk" style="grid-template-columns:26px 1fr 60px;align-items:center"><i style="width:26px;height:26px;border-radius:5px"></i><i style="width:45%"></i><i></i></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const RATE=3.10, TODAY=new Date(2026,9,19);
+const U={unknown:'לא ידוע',daily:'כל יום',sometimes:'לפעמים',rarely:'כמעט לא',none:'לא בשימוש'};
+const ORDER=['none','rarely','unknown','sometimes','daily'];
+const A1='pinhas.k@gmail.com', A2='family.kroyzer@gmail.com';
+const subs=[
+ {n:'Adobe Creative Cloud',p:'Adobe',c:'עיצוב',pr:59.99,cur:'$',per:'חודשי',m:185.97,a:A1,u:'rarely',last:'03.10.2026',next:'03.11.2026',col:'oklch(0.68 0.2 25)',l:'A'},
+ {n:'Netflix',p:'Netflix',c:'סטרימינג',pr:69.90,cur:'₪',per:'חודשי',m:69.90,a:A2,u:'daily',last:'22.09.2026',next:'22.10.2026',col:'oklch(0.62 0.2 27)',l:'N'},
+ {n:'ChatGPT Plus',p:'OpenAI',c:'כלי AI',pr:20,cur:'$',per:'חודשי',m:62.00,a:A1,u:'daily',last:'28.09.2026',next:'28.10.2026',col:'oklch(0.76 0.13 170)',l:'C'},
+ {n:'Canva Pro',p:'Canva',c:'עיצוב',pr:54.90,cur:'₪',per:'חודשי',m:54.90,a:A1,u:'sometimes',last:'11.10.2026',next:'11.11.2026',col:'oklch(0.72 0.14 215)',l:'C'},
+ {n:'Google One 2TB',p:'Google',c:'אחסון ענן',pr:39.99,cur:'₪',per:'חודשי',m:39.99,a:A2,u:'unknown',last:'01.10.2026',next:'01.11.2026',col:'oklch(0.78 0.14 100)',l:'G'},
+ {n:'Dropbox Plus',p:'Dropbox',c:'אחסון ענן',pr:11.99,cur:'$',per:'חודשי',m:37.17,a:A1,u:'none',last:'25.09.2026',next:'25.10.2026',col:'oklch(0.7 0.14 250)',l:'D'},
+ {n:'YouTube Premium',p:'Google',c:'סטרימינג',pr:33.90,cur:'₪',per:'חודשי',m:33.90,a:A2,u:'sometimes',last:'14.10.2026',next:'14.11.2026',col:'oklch(0.68 0.2 30)',l:'Y'},
+ {n:'Microsoft 365 Personal',p:'Microsoft',c:'תוכנה',pr:299,cur:'₪',per:'שנתי',m:24.92,a:A1,u:'sometimes',last:'06.01.2026',next:'06.01.2027',col:'oklch(0.74 0.14 60)',l:'M'},
+ {n:'Spotify Premium',p:'Spotify',c:'סטרימינג',pr:23.90,cur:'₪',per:'חודשי',m:23.90,a:A2,u:'daily',last:'17.10.2026',next:'17.11.2026',col:'oklch(0.78 0.18 150)',l:'S'},
+ {n:'iCloud+ 200GB',p:'Apple',c:'אחסון ענן',pr:10.90,cur:'₪',per:'חודשי',m:10.90,a:A1,u:'unknown',last:'09.10.2026',next:'09.11.2026',col:'oklch(0.78 0.04 250)',l:'i'},
+];
+const cancelled=[{n:'Disney+',p:'Disney',c:'סטרימינג',x:'בוטל 03.2026',col:'oklch(0.66 0.12 265)',l:'D'},{n:'Notion Plus',p:'Notion',c:'כלי עבודה',x:'בוטל 06.2026',col:'oklch(0.85 0.01 250)',l:'N'}];
+const cats=['עיצוב','סטרימינג','כלי AI','אחסון ענן','תוכנה'];
+const fmt=v=>v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=(v,big)=>`<bdi class="num">${fmt(v)}</bdi><span class="cur">₪</span>`;
+const orig=s=>s.cur==='$'?`<bdi class="num">$${fmt(s.pr)}</bdi>`:`<bdi class="num">${fmt(s.pr)}</bdi><span class="cur">₪</span>`;
+const $=id=>document.getElementById(id);
+const pd=s=>{const [d,m,y]=s.split('.').map(Number);return new Date(y,m-1,d)};
+const sig='<i class="sig"><b></b><b></b><b></b><b></b></i>';
+let fAcct='all',fCat='all',showCancel=false;
+
+function summary(){
+  const tot=subs.reduce((a,s)=>a+s.m,0);
+  const leakArr=subs.filter(s=>s.u==='none'||s.u==='rarely');
+  const leak=leakArr.reduce((a,s)=>a+s.m,0);
+  $('kTotal').innerHTML=fmt(tot)+'<span class="cur">₪</span>';
+  $('kYear').innerHTML=money(Math.round(tot*12*100)/100);
+  $('kCount').innerHTML=`<bdi class="num">${subs.length}</bdi>`;
+  $('kLeak').innerHTML=fmt(leak)+'<span class="cur">₪</span>';
+  $('kPct').innerHTML=`${(leak/tot*100).toFixed(1)}%`;
+  $('kLeakY').innerHTML=money(Math.round(leak*12*100)/100);
+  $('leakNames').textContent=leakArr.length?leakArr.map(s=>s.n.replace(' Creative Cloud',' CC').replace(' Plus','')).join(' + '):'אין דליפה כרגע';
+  // meter
+  const sorted=[...subs].sort((a,b)=>ORDER.indexOf(a.u)-ORDER.indexOf(b.u)||b.m-a.m);
+  $('meter').innerHTML=sorted.map(s=>`<div class="seg ${s.u}" style="flex-basis:calc(${(s.m/tot*100).toFixed(3)}% - 2px)" title="${s.n}: ${fmt(s.m)} ₪, ${U[s.u]}">${s.m/tot>.085?s.n.split(' ')[0]:''}</div>`).join('');
+  const lp=leak/tot*100;
+  const br=$('bracket'); br.style.insetInlineStart='0'; br.style.width=`calc(${lp}% )`; br.style.display=lp?'flex':'none';
+  $('bracketTxt').textContent=fmt(leak)+' ₪';
+  const by=k=>subs.filter(s=>s.u===k).reduce((a,s)=>a+s.m,0);
+  $('legend').innerHTML=ORDER.map(k=>`<span><i class="${k}"></i>${U[k]} <b>${fmt(by(k))}</b></span>`).join('');
+  // chart
+  const ct=cats.map(c=>({c,items:subs.filter(s=>s.c===c)})).map(o=>({...o,v:o.items.reduce((a,s)=>a+s.m,0)}));
+  const mx=240;
+  $('plot').innerHTML=[0,100,200].map(v=>`<div class="grid-l" style="bottom:${v/mx*100}%"></div>`).join('')+
+   `<div class="bars">${ct.map(o=>`<div class="bar" style="height:${o.v/mx*100}%" title="${o.c}: ${fmt(o.v)} ₪"><span class="v">${Math.round(o.v)}</span>${o.items.map(s=>`<div class="s ${s.u==='rarely'||s.u==='none'||s.u==='unknown'?s.u:''}" style="height:${s.m/o.v*100}%" title="${s.n}"></div>`).join('')}</div>`).join('')}</div>`;
+  $('xl').innerHTML=ct.map(o=>`<div><span>${o.c}</span><bdi class="num" style="font-size:10px">${o.items.length}</bdi></div>`).join('');
+  renewals();
+  document.querySelectorAll('.tr.row').forEach(()=>{});
+}
+function renewals(){
+  const days=[...Array(31)].map((_,i)=>{const d=new Date(TODAY);d.setDate(d.getDate()+i);return d});
+  const end=days[30];
+  const ren=subs.map(s=>({s,d:pd(s.next)})).filter(o=>o.d>=TODAY&&o.d<=end).sort((a,b)=>a.d-b.d);
+  const wk='אבגדהוש';
+  $('strip').innerHTML=days.map((d,i)=>{
+    const hit=ren.filter(o=>+o.d===+d);
+    const dots=hit.map(o=>{const z=Math.round(7+o.s.m/185.97*8);return `<span class="dot ${o.s.u}" style="width:${z}px;height:${z}px" title="${o.s.n}: ${fmt(o.s.m)} ₪"></span>`}).join('');
+    return `<div class="day ${i===0?'today':''} ${d.getDay()===6?'sat':''} ${d.getDate()===1?'mstart':''} ${hit.length?'has':''} ${d.getDay()===0?'wk':''}">${(i===0||d.getDate()===1)?`<span class="mo">${d.getMonth()===9?'אוקטובר':'נובמבר'}</span>`:''}<span class="d">${d.getDate()}</span><span class="w">${wk[d.getDay()]}׳</span><div class="dots">${dots}</div></div>`;
+  }).join('');
+  const dd=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
+  $('rlist').innerHTML=ren.map(o=>`<div class="ritem"><span class="dt">${dd(o.d)}</span><span class="nm"><i class="i ${o.s.u}"></i>${o.s.n.replace(' Creative Cloud',' CC')}</span><span class="am">${o.s.cur==='$'?'$'+fmt(o.s.pr):fmt(o.s.pr)+' ₪'}</span></div>`).join('');
+  $('rnCount').textContent=ren.length;
+  $('rnSum').textContent=fmt(ren.reduce((a,o)=>a+o.s.m,0))+' ₪';
+}
+function filters(){
+  const mk=(el,items,cur,set,ltr)=>{
+    el.querySelectorAll('.chip').forEach(c=>c.remove());
+    items.forEach(([k,t,n])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(ltr&&k!=='all'?' ltr':'');b.setAttribute('aria-pressed',cur===k);b.innerHTML=`${t}${n!=null?` <span class="n">${n}</span>`:''}`;b.onclick=()=>{set(k);filters();rows()};el.appendChild(b)});
+  };
+  mk($('fAcct'),[['all','הכל',subs.length],[A1,A1,subs.filter(s=>s.a===A1).length],[A2,A2,subs.filter(s=>s.a===A2).length]],fAcct,k=>fAcct=k,true);
+  mk($('fCat'),[['all','הכל'],...cats.map(c=>[c,c,subs.filter(s=>s.c===c).length])],fCat,k=>fCat=k);
+}
+function rows(){
+  const rl=$('rows');
+  if(showCancel){
+    rl.innerHTML=cancelled.map(s=>`<div class="tr row cancelled-row" role="row"><div class="svc"><span class="mono-sq" style="background:${s.col}">${s.l}</span><span><b>${s.n}</b><small>${s.p}</small></span></div><span class="c-cat">${s.c}</span><span class="c-orig">-</span><span class="c-per">-</span><div class="c-amt"><span class="t">-</span></div><span class="c-date c-last">-</span><span class="c-date next">-</span><span class="c-acct">-</span><span><span class="badge-x">${s.x}</span></span></div>`).join('');
+    $('tfCount').textContent='2 מנויים שבוטלו';$('tfSum').innerHTML='0.00 ₪';return;
+  }
+  const list=[...subs].filter(s=>(fAcct==='all'||s.a===fAcct)&&(fCat==='all'||s.c===fCat)).sort((a,b)=>b.m-a.m);
+  const mx=Math.max(...subs.map(s=>s.m));
+  rl.innerHTML=list.map((s,i)=>{
+    const soon=(pd(s.next)-TODAY)/864e5<=30;
+    const hot=s.u==='rarely'||s.u==='none';
+    return `<div class="tr row ${hot?'hot r-'+s.u:''}" role="row" data-i="${subs.indexOf(s)}">
+      <a class="svc" href="#detail"><span class="mono-sq" style="background:${s.col}">${s.l}</span><span style="min-width:0"><b>${s.n}</b><small>${s.p}</small></span></a>
+      <span class="c-cat">${s.c}</span>
+      <span class="c-orig">${orig(s)}<span class="per hidden"></span></span>
+      <span class="c-per">${s.per}</span>
+      <div class="c-amt"><i class="db ${hot?s.u:''}" style="width:${s.m/mx*100}%"></i><span class="t">${fmt(s.m)}<span class="cur">₪</span></span></div>
+      <span class="c-date c-last">${s.last}</span>
+      <span class="c-date next ${soon?'soon':''}"><span class="m">חידוש</span>${s.next}</span>
+      <span class="c-acct">${s.a}</span>
+      <div class="use"><button class="ub" data-u="${s.u}" type="button" aria-haspopup="menu" aria-label="שימוש: ${U[s.u]}">${sig}<span>${U[s.u]}</span><svg class="car" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg></button>
+        <div class="menu" role="menu">${Object.keys(U).map(k=>`<button role="menuitemradio" data-u="${k}" aria-checked="${k===s.u}">${sig.replace('<i class="sig">','<i class="sig" data-u="'+k+'">')}${U[k]}</button>`).join('')}</div></div>
+    </div>`;
+  }).join('');
+  // mobile: add period next to orig
+  if(innerWidth<=860) rl.querySelectorAll('.tr.row').forEach(r=>{const s=subs[r.dataset.i];r.querySelector('.per').classList.remove('hidden');r.querySelector('.per').textContent=' / '+(s.per==='חודשי'?'חודש':'שנה')});
+  const sum=list.reduce((a,s)=>a+s.m,0);
+  $('tfCount').textContent=`${list.length} מתוך ${subs.length} מנויים`;
+  $('tfSum').innerHTML=fmt(sum)+' ₪';
+}
+// usage menus
+document.addEventListener('click',e=>{
+  const ub=e.target.closest('.ub');const mi=e.target.closest('.menu button');
+  document.querySelectorAll('.menu.open').forEach(m=>{if(!ub||m!==ub.nextElementSibling)m.classList.remove('open')});
+  if(mi){const row=mi.closest('.row');const s=subs[row.dataset.i];s.u=mi.dataset.u;summary();rows();return}
+  if(ub&&ub.nextElementSibling&&ub.nextElementSibling.classList.contains('menu'))ub.nextElementSibling.classList.toggle('open');
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.menu.open').forEach(m=>m.classList.remove('open'))});
+$('swCancel').onclick=function(){showCancel=!showCancel;this.setAttribute('aria-checked',showCancel);rows()};
+$('reviewBtn').onclick=()=>{fAcct='all';fCat='all';showCancel=false;$('swCancel').setAttribute('aria-checked','false');filters();rows();$('rows').scrollIntoView({behavior:'smooth',block:'start'})};
+$('scanBtn').onclick=function(){const b=this;if(b.classList.contains('scanning'))return;b.classList.add('scanning');$('scanTxt').textContent='סורק...';setTimeout(()=>{b.classList.remove('scanning');$('scanTxt').textContent='סרוק עכשיו'},2400)};
+
+// alternatives
+const alts=[
+ {n:'Affinity',s:'עורך תמונות, וקטור ועימוד',price:0,label:'חינמי בבסיס',why:'חינמי בבסיס, עורך תמונות ווקטור ועימוד במקום אחד.',give:'בלי ענן, וללא פונטים של Adobe.',url:'affinity.serif.com'},
+ {n:'Photoshop בלבד',s:'Photography plan',price:19.99,why:'Photoshop ו-Lightroom, בשליש מהמחיר של החבילה המלאה.',give:'Illustrator ו-Premiere.',url:'adobe.com'},
+ {n:'Canva Pro',s:'כבר משולם',price:0,label:'0 ₪ תוספת',why:'כבר משולם אצלך, מספיק לגרפיקה לרשתות.',give:'עבודה מקצועית בקבצי PSD.',url:'canva.com'},
+ {n:'Figma Professional',s:'לממשקים',price:16,why:'מתאים לעיצוב ממשקים.',give:'עריכת תמונות.',url:'figma.com'},
+];
+function altCards(){
+  const cur=185.97;
+  $('alts').innerHTML=alts.map(a=>{
+    const il=Math.round(a.price*RATE*100)/100, d=Math.round((cur-il)*100)/100;
+    return `<article class="alt">
+      <div class="alt-top"><h4>${a.n}<small>${a.s}</small></h4>
+        <div class="delta"><span class="pr">${a.label?a.label:'<bdi class="num">$'+fmt(a.price)+'</bdi>'}</span>${a.label?'':`<span class="pr" style="font-size:11px;color:var(--ink-3);font-weight:400"><bdi class="num">${fmt(il)}</bdi> ₪ לחודש</span>`}<span class="dl"><bdi class="num">-${fmt(d)}</bdi> ₪ מול היום</span></div></div>
+      <div><div class="cmp"><i style="width:${Math.max(il/cur*100,0)}%"></i></div><div class="cmpl"><span>עלות החלופה</span><span>היום <b>${fmt(cur)}</b></span></div></div>
+      <dl><div><dt>למה כדאי</dt><dd>${a.why}</dd></div><div><dt class="give">מוותרים על</dt><dd>${a.give}</dd></div></dl>
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule-soft);padding-top:8px"><a class="go" href="#" style="border:0;padding:0">לאתר <bdi class="num" style="font-size:11px;color:var(--ink-3)">${a.url}</bdi> <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3h4v4M13 3L7 9"/></svg></a><span class="save">חיסכון בשנה <b>${fmt(d*12)}</b> ₪</span></div>
+    </article>`}).join('');
+}
+$('findBtn').onclick=function(){
+  $('altLoading').classList.remove('hidden');$('alts').classList.add('hidden');this.disabled=true;this.style.opacity=.5;
+  const l=$('altLoading').querySelector('.prog');l.classList.remove('run');void l.offsetWidth;l.classList.add('run');
+  setTimeout(()=>{$('altLoading').classList.add('hidden');$('alts').classList.remove('hidden');this.disabled=false;this.style.opacity=1;$('checkedAt').innerHTML='נבדק ב-<b>19.10.2026</b>'},3600);
+};
+summary();filters();rows();altCards();
+</script>
+</body>
+</html>

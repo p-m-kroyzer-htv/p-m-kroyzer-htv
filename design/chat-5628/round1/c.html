@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הדוח החודשי - מנויים</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<style>
+:root{
+  --paper: oklch(95.6% .018 86);
+  --paper-2: oklch(92.4% .026 82);
+  --paper-3: oklch(89% .03 80);
+  --ink: oklch(21% .012 60);
+  --ink-2: oklch(38% .016 60);
+  --mute: oklch(52% .02 70);
+  --rule: oklch(79% .024 78);
+  --rule-soft: oklch(86% .022 80);
+  --accent: oklch(36% .125 22);
+  --accent-2: oklch(44% .14 24);
+  --accent-tint: oklch(92% .04 28);
+  --serif: 'Frank Ruhl Libre', 'David Libre', serif;
+  --sans: 'Assistant', 'Heebo', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;line-height:1.6;
+  font-variant-numeric:tabular-nums lining-nums;
+  position:relative;
+}
+body::before{ /* paper grain */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.sheet{position:relative;z-index:1;max-width:1280px;margin-inline:auto;padding-inline:clamp(18px,4vw,56px)}
+a{color:inherit}
+bdi,.ltr{unicode-bidi:isolate}
+.ltr{direction:ltr;display:inline-block}
+.shk{font-family:var(--sans);font-weight:400;font-size:.62em;margin-inline-start:.18em;letter-spacing:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* ---------- masthead ---------- */
+.mast{padding-top:22px}
+.mast-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-bottom:14px}
+.brand{font-family:var(--serif);font-weight:900;font-size:22px;display:flex;align-items:baseline;gap:12px}
+.brand small{font-family:var(--sans);font-weight:400;font-size:13.5px;color:var(--mute)}
+.nav{display:flex;gap:26px;font-size:15.5px}
+.nav a{text-decoration:none;padding-block:4px;border-bottom:2px solid transparent;color:var(--ink-2)}
+.nav a[aria-current]{color:var(--ink);font-weight:700;border-color:var(--ink)}
+.nav a:hover{color:var(--accent)}
+.scan{display:flex;align-items:center;gap:14px;font-size:14px;color:var(--ink-2)}
+.scan b{font-weight:600;color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:9px 18px;font-weight:700;font-size:15px;border:1.5px solid var(--ink);background:transparent;transition:background .2s,color .2s,transform .2s}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:16px;height:16px}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:var(--accent);border-color:var(--accent)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn.accent:hover{background:var(--ink);border-color:var(--ink)}
+.spin.on svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rule-tri{border:0;border-top:3px double var(--ink);height:0}
+.folio{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--mute);padding-block:8px;border-bottom:1px solid var(--rule)}
+.folio span:first-child{color:var(--ink-2);font-weight:600}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0 clamp(32px,5vw,72px);padding-block:44px 54px}
+.eyebrow{font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:16px}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4.3vw,56px);line-height:1.18;max-width:17.5em;text-wrap:balance}
+h1 .hl{color:var(--accent);font-weight:800;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.16em;text-decoration-color:color-mix(in oklch,var(--accent),transparent 55%)}
+.leak{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:end;gap:10px 34px;margin-top:34px;padding-top:26px;border-top:1px solid var(--ink)}
+.leak-fig{font-family:var(--serif);font-weight:900;color:var(--accent);font-size:clamp(84px,14.5vw,196px);line-height:.82;letter-spacing:0;direction:ltr;white-space:nowrap}
+.leak-fig .shk{font-size:.28em;font-weight:700;margin-inline-start:.12em}
+.leak-fig .cents{font-size:.42em;font-weight:700;vertical-align:baseline}
+.leak-side{padding-bottom:6px;max-width:25em}
+.leak-side .k{font-weight:700;font-size:15px}
+.leak-side p{color:var(--ink-2);font-size:15.5px;margin-top:6px}
+.leak-side bdi{white-space:nowrap}
+.leak-side p strong{color:var(--ink);font-weight:700}
+.leak-cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;margin-top:18px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:34px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.fact{padding:16px 0 16px;padding-inline-end:18px}
+.fact + .fact{padding-inline-start:22px;border-inline-start:1px solid var(--rule-soft)}
+.fact dt{font-size:13.5px;color:var(--mute)}
+.fact dd{font-family:var(--serif);font-weight:700;font-size:clamp(26px,3vw,38px);line-height:1.15;margin-top:2px;direction:rtl}
+.fact dd .ltr{direction:ltr}
+
+.renew{border-inline-start:1px solid var(--ink);padding-inline-start:clamp(24px,3vw,40px)}
+.renew h2,.sec-h{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.2}
+.renew .sub{font-size:13.5px;color:var(--mute);margin:4px 0 14px}
+.rlist{list-style:none;border-top:2px solid var(--ink)}
+.rlist li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:baseline;gap:0 12px;padding:11px 0;border-bottom:1px solid var(--rule-soft)}
+.rd{font-family:var(--serif);font-weight:800;font-size:30px;line-height:1;text-align:center}
+.rd small{display:block;font-family:var(--sans);font-weight:600;font-size:11.5px;color:var(--mute);margin-top:3px}
+.rn{font-weight:600;font-size:16px;line-height:1.3}
+.rn small{display:block;font-weight:400;font-size:12.5px;color:var(--mute)}
+.rn .flag{color:var(--accent);font-weight:700}
+.ra{font-weight:700;font-size:16px;direction:ltr;text-align:end}
+.ra small{display:block;font-weight:400;font-size:12px;color:var(--mute)}
+.rlist li.warn .rn,.rlist li.warn .rd{color:var(--accent)}
+.rtotal{display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;font-size:14px;color:var(--ink-2)}
+.rtotal b{font-family:var(--serif);font-size:24px;color:var(--ink);font-weight:800;direction:ltr}
+
+/* ---------- ledger ---------- */
+.ledger-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;border-top:3px double var(--ink);padding-top:26px}
+.sec-h{font-size:clamp(30px,3.4vw,44px);font-weight:700}
+.sec-h small{display:block;font-family:var(--sans);font-size:14px;font-weight:400;color:var(--mute);margin-top:4px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--ink)}
+.tabs button{padding:8px 18px;font-weight:600;font-size:15px;color:var(--mute);border:1px solid transparent;border-bottom:0;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);background:var(--paper);border-color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:10px 36px;padding-block:18px 14px;font-size:14.5px}
+.fgrp{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.fgrp > span{color:var(--mute);margin-inline-end:4px}
+.chip{padding:2px 10px;border-radius:2px;color:var(--ink-2);border:1px solid transparent}
+.chip:hover{border-color:var(--rule)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--paper);font-weight:600}
+.chip .ltr{font-size:13px}
+
+table.led{width:100%;border-collapse:collapse}
+.led th{font-size:12.5px;font-weight:600;color:var(--mute);text-align:start;padding:8px 10px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);white-space:nowrap}
+.led td{padding:15px 10px;border-bottom:1px solid var(--rule-soft);vertical-align:middle;font-size:15px}
+.led th:first-child,.led td:first-child{padding-inline-start:0}
+.led th:last-child,.led td:last-child{padding-inline-end:0}
+.led th.n,.led td.n{text-align:end}
+.led tbody tr{transition:background .2s;cursor:default}
+.led tbody tr:hover{background:oklch(93.4% .024 84)}
+.led tr.waste{background:linear-gradient(90deg,transparent,var(--accent-tint) 0) }
+.led tr.waste{background:color-mix(in oklch,var(--accent-tint),transparent 45%)}
+.led tr.waste:hover{background:var(--accent-tint)}
+.who{display:flex;align-items:center;gap:13px;min-width:0}
+.mono{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:800;font-size:19px;color:oklch(97% .01 85);background:oklch(42% .09 var(--h));line-height:1}
+.mono.lg{width:64px;height:64px;font-size:32px}
+.who b{display:block;font-family:var(--serif);font-weight:700;font-size:19px;line-height:1.2}
+.who b a{text-decoration:none}
+.who b a:hover{color:var(--accent);text-decoration:underline}
+.who small{display:block;font-size:13px;color:var(--mute);margin-top:1px}
+.price{white-space:nowrap}
+.price .ltr{font-weight:600}
+.price small{display:block;font-size:12.5px;color:var(--mute);text-align:end}
+.cost{direction:ltr;text-align:end;min-width:104px}
+.cost b{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.1}
+.cost i{display:block;height:2px;margin-top:6px;background:var(--ink);opacity:.8;margin-inline-start:auto;transform-origin:right}
+.waste .cost b{color:var(--accent)}
+.waste .cost i{background:var(--accent);opacity:1}
+.date{white-space:nowrap;color:var(--ink-2)}
+.date.soon{color:var(--ink);font-weight:700}
+.acct{font-size:12.5px;color:var(--ink-2);direction:ltr;text-align:end;white-space:nowrap}
+.use{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.bars{display:flex;align-items:flex-end;gap:2px;height:16px;flex:none}
+.bars i{width:4px;background:var(--rule);display:block}
+.bars i:nth-child(1){height:5px}.bars i:nth-child(2){height:8px}.bars i:nth-child(3){height:12px}.bars i:nth-child(4){height:16px}
+.bars i.f{background:var(--ink)}
+.bars.q{align-items:center}
+.bars.q i{background:none;border-bottom:1.5px dotted var(--mute);height:2px!important}
+.waste .bars i.f{background:var(--accent)}
+.usesel{position:relative}
+.usesel select{appearance:none;-webkit-appearance:none;background:transparent;border:0;border-bottom:1px dashed var(--mute);font:600 14.5px var(--sans);color:var(--ink);padding:2px 2px 2px 18px;padding-inline:0 18px;cursor:pointer;border-radius:0}
+.usesel::after{content:"";position:absolute;inset-inline-end:2px;top:50%;width:6px;height:6px;border:solid var(--mute);border-width:0 1.5px 1.5px 0;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.usesel select.bad{color:var(--accent);border-bottom-color:var(--accent)}
+.usesel select.dim{color:var(--mute);font-weight:400}
+.usesel option{color:var(--ink);font-weight:400}
+.led tfoot td{border-top:1px solid var(--ink);border-bottom:3px double var(--ink);padding-block:14px;font-weight:700}
+.led tfoot .tot{font-family:var(--serif);font-size:24px;direction:ltr;text-align:end}
+.led tr.gone td{color:var(--mute)}
+.led tr.gone .who b{text-decoration:line-through;text-decoration-thickness:1px}
+.led tr.gone .mono{background:var(--paper-3);color:var(--mute)}
+.empty-rows td{padding:34px 0;color:var(--mute);text-align:center}
+
+/* ---------- page 2 ---------- */
+.p2{margin-top:76px}
+.pagebreak{display:flex;align-items:center;gap:18px;color:var(--mute);font-size:13px;font-weight:600;margin-bottom:34px}
+.pagebreak::before,.pagebreak::after{content:"";flex:1;border-top:1px dashed var(--rule)}
+.p2-wrap{background:oklch(97% .014 86);box-shadow:0 1px 0 var(--rule),0 22px 50px -26px oklch(30% .05 60 / .45),0 2px 6px oklch(30% .05 60 / .07);padding:clamp(22px,4vw,56px);position:relative}
+.p2-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:22px;align-items:center;padding-bottom:26px;border-bottom:3px double var(--ink)}
+.p2-head h2{font-family:var(--serif);font-weight:800;font-size:clamp(34px,4.4vw,58px);line-height:1.05}
+.p2-head p{font-size:14.5px;color:var(--ink-2);margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 18px}
+.p2-big{text-align:end;direction:ltr}
+.p2-big b{font-family:var(--serif);font-weight:900;font-size:clamp(44px,5.6vw,76px);line-height:.9;color:var(--accent);display:block}
+.p2-big small{font-size:13.5px;color:var(--ink-2);display:block;margin-top:8px;direction:rtl}
+.p2-body{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:0 clamp(30px,5vw,68px);padding-top:32px}
+.p2 h3{font-family:var(--serif);font-weight:800;font-size:23px;margin-bottom:12px;line-height:1.2}
+.bill{width:100%;border-collapse:collapse}
+.bill th{font-size:12.5px;font-weight:600;color:var(--mute);text-align:start;padding:7px 8px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.bill td{padding:12px 8px;border-bottom:1px solid var(--rule-soft);font-size:15px}
+.bill th:first-child,.bill td:first-child{padding-inline-start:0}
+.bill th:last-child,.bill td:last-child{padding-inline-end:0}
+.bill .n{text-align:end;direction:ltr}
+.bill td.n b{font-family:var(--serif);font-size:19px}
+.bill td small{display:block;font-size:12.5px;color:var(--mute)}
+.bill .rise td{background:color-mix(in oklch,var(--accent-tint),transparent 50%)}
+.bill tfoot td{border-top:1px solid var(--ink);border-bottom:3px double var(--ink);font-weight:700;padding-block:12px}
+.pill-note{margin-top:14px;font-size:14px;color:var(--ink-2);max-width:34em}
+.pill-note b{color:var(--accent)}
+.margin-note{position:relative;padding:6px 6px 0}
+.margin-note .lbl{font-size:12.5px;color:var(--mute);font-weight:600;margin-bottom:8px;display:block}
+.margin-note textarea{width:100%;min-height:128px;resize:vertical;background:transparent;border:0;font-family:var(--serif);font-weight:500;font-size:27px;line-height:1.5;color:var(--accent);transform:rotate(-1.6deg);transform-origin:right top;padding:4px 10px 8px 4px;background-image:repeating-linear-gradient(transparent 0 39px,oklch(70% .06 25 / .35) 39px 40px);background-attachment:local}
+.margin-note textarea:focus{outline:0;background-color:color-mix(in oklch,var(--accent-tint),transparent 60%)}
+.margin-note svg.sw{position:absolute;inset-block-start:26px;inset-inline-end:-26px;width:20px;height:110px;color:var(--accent);opacity:.8}
+.actions{margin-top:34px;padding-top:20px;border-top:1px solid var(--ink)}
+.actions .row{display:flex;flex-wrap:wrap;gap:10px}
+.actions .vend{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-weight:700;color:var(--ink);text-underline-offset:4px}
+.actions .vend:hover{color:var(--accent)}
+.actions .vend svg{width:14px;height:14px}
+.stamp{position:absolute;inset-block-start:34px;inset-inline-start:34%;font-family:var(--serif);font-weight:900;font-size:clamp(36px,6vw,78px);color:var(--accent);border:5px double var(--accent);padding:0 22px;transform:rotate(-9deg) scale(1.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .35s cubic-bezier(.2,1.2,.4,1);mix-blend-mode:multiply;z-index:3}
+.p2-wrap.cancelled .stamp{opacity:.82;transform:rotate(-9deg) scale(1)}
+.p2-wrap.cancelled .p2-big b{text-decoration:line-through;text-decoration-thickness:3px}
+
+.alts{margin-top:46px;padding-top:26px;border-top:3px double var(--ink)}
+.alts-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
+.alts-head .stamp-date{font-size:13.5px;color:var(--mute)}
+.alts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:24px;border-top:2px solid var(--ink)}
+.alt{padding:20px 22px 20px;display:flex;flex-direction:column;position:relative}
+.alt + .alt{border-inline-start:1px solid var(--rule)}
+.alt:first-child{padding-inline-start:0}
+.alt:last-child{padding-inline-end:0}
+.alt .tag{font-size:12.5px;font-weight:700;color:var(--accent);min-height:20px}
+.alt h4{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.15}
+.alt .pr{font-family:var(--serif);font-weight:900;font-size:40px;line-height:1;margin:14px 0 2px}
+.alt .pr small{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--mute)}
+.alt .save{font-size:13.5px;color:var(--ink-2);padding-bottom:14px;border-bottom:1px solid var(--rule-soft);margin-bottom:12px}
+.alt .save b{color:var(--ink)}
+.alt dl{flex:1}
+.alt dt{font-size:12.5px;font-weight:700;color:var(--mute);margin-top:10px}
+.alt dd{font-size:14.5px;line-height:1.55;color:var(--ink)}
+.alt a.go{margin-top:18px;font-weight:700;font-size:14.5px;display:inline-flex;gap:7px;align-items:center;text-underline-offset:4px;align-self:flex-start}
+.alt a.go:hover{color:var(--accent)}
+.alt a.go svg{width:13px;height:13px}
+.alt.pick{background:linear-gradient(180deg,var(--paper-2),transparent 70%);margin-top:-2px;border-top:2px solid var(--accent);padding-top:22px}
+
+/* skeleton / loading */
+.loading{display:none;margin-top:24px}
+.loading.on{display:block}
+.alts.busy .alts-grid{display:none}
+.prog{height:3px;background:var(--rule-soft);overflow:hidden;position:relative}
+.prog i{position:absolute;inset-block:0;inset-inline-start:0;width:100%;background:var(--accent);transform-origin:right;transform:scaleX(.08);animation:prog 30s linear forwards}
+.alts.demo .prog i{animation-duration:4s}
+@keyframes prog{to{transform:scaleX(1)}}
+.loading p{font-size:14.5px;color:var(--ink-2);margin:10px 0 16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.skgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;border-top:2px solid var(--ink);padding-top:20px}
+.sk{display:grid;gap:10px}
+.sk i{display:block;height:12px;background:linear-gradient(90deg,var(--paper-3),var(--paper-2),var(--paper-3));background-size:240% 100%;animation:shim 1.4s linear infinite}
+.sk i.t{height:24px;width:62%}.sk i.p{height:38px;width:44%;margin-block:6px}.sk i.s{width:88%}.sk i.s2{width:70%}.sk i.s3{width:80%}
+@keyframes shim{from{background-position:100% 0}to{background-position:-140% 0}}
+
+/* ---------- accounts + states ---------- */
+.states{margin-top:84px;padding-top:26px;border-top:3px double var(--ink)}
+#accounts{scroll-margin-top:20px}
+.states-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:0 clamp(26px,4vw,56px);margin-top:26px}
+.states-grid > section{padding-inline-end:clamp(0px,2vw,24px)}
+.states-grid > section + section{border-inline-start:1px solid var(--rule);padding-inline-start:clamp(22px,3vw,40px)}
+.tag-lbl{display:inline-block;font-size:12px;font-weight:700;color:var(--paper);background:var(--ink);padding:1px 9px;margin-bottom:12px}
+.acc-list{list-style:none;border-top:2px solid var(--ink)}
+.acc-list li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-soft)}
+.acc-list .ltr{font-weight:600;font-size:15px}
+.acc-list small{color:var(--mute);font-size:13px}
+.acc-list em{font-style:normal;font-family:var(--serif);font-weight:800;font-size:22px}
+.emptybox{border:1.5px dashed var(--ink-2);padding:24px 22px;text-align:start;background:color-mix(in oklch,var(--paper-2),transparent 40%)}
+.emptybox h4{font-family:var(--serif);font-weight:800;font-size:23px;line-height:1.25}
+.emptybox p{font-size:14.5px;color:var(--ink-2);margin:6px 0 16px}
+.ghost{display:grid;gap:8px;margin-bottom:18px}
+.ghost i{display:block;height:1px;background:var(--rule)}
+.loadspec .prog{margin-bottom:0}
+.colophon{padding-block:40px 46px;font-size:13px;color:var(--mute);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- entrance (one orchestrated reveal) ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .rv{animation:rv .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d,0) * 90ms)}
+  .leak-fig{animation:rv .9s cubic-bezier(.2,.7,.2,1) both .35s}
+}
+@keyframes rv{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.sk i,.prog i{animation:none}.prog i{transform:scaleX(.4)}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .hero{grid-template-columns:1fr}
+  .renew{border-inline-start:0;padding-inline-start:0;margin-top:46px;border-top:1px solid var(--ink);padding-top:26px}
+  .rlist{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}
+  .alts-grid{grid-template-columns:repeat(2,1fr)}
+  .alt:nth-child(3){border-inline-start:0;padding-inline-start:0}
+  .alt:nth-child(n+3){border-top:1px solid var(--rule)}
+  .alt:nth-child(2){padding-inline-end:0}
+  .states-grid{grid-template-columns:1fr 1fr}
+  .states-grid > section:first-child{grid-column:1/-1;margin-bottom:34px;padding-inline-end:0}
+  .states-grid > section:nth-child(2){border-inline-start:0;padding-inline-start:0}
+  .skgrid{grid-template-columns:repeat(2,1fr)}
+  .p2-body{grid-template-columns:1fr}
+  .margin-note{margin-top:40px}
+  .led th.hide-m,.led td.hide-m{display:none}
+}
+@media (max-width:820px){
+  .led thead{display:none}
+  .led,.led tbody,.led tfoot,.led tr,.led td{display:block;width:100%}
+  .led tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who cost" "price price" "next use" "acct acct";gap:2px 14px;padding:16px 0;border-bottom:1px solid var(--rule)}
+  .led tbody tr.waste{padding-inline:12px;margin-inline:-12px;width:calc(100% + 24px)}
+  .led td{padding:0;border:0}
+  .led td.hide-m{display:block}
+  .c-name{grid-area:who}.c-cost{grid-area:cost;align-self:start}.c-price{grid-area:price;margin-top:6px}
+  .c-next{grid-area:next;margin-top:10px}.c-use{grid-area:use;margin-top:10px;justify-content:flex-end}.c-acct{grid-area:acct;margin-top:8px;text-align:start;direction:rtl}
+  .c-last{display:none!important}
+  .led td.price{display:flex;gap:8px;align-items:baseline;font-size:14px;color:var(--ink-2)}
+  .price small{display:inline;text-align:start}
+  .c-next::before{content:"חידוש הבא: ";color:var(--mute);font-size:13.5px}
+  .c-acct::before{content:"חשבון: ";color:var(--mute)}
+  .c-acct .ltr{direction:ltr}
+  .led tfoot tr{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--ink);border-bottom:3px double var(--ink);padding:14px 0}
+  .led tfoot td{border:0;padding:0;width:auto}
+  .led tfoot td.hide-m{display:none}
+  .led tr.waste .cost b{font-size:23px}
+  .empty-rows{padding:0}
+  .p2-head{grid-template-columns:auto 1fr}
+  .p2-big{grid-column:1/-1;text-align:start;direction:rtl}
+  .p2-big b{direction:ltr;text-align:end;display:block;text-align:right}
+  .bill .hide-s{display:none}
+}
+@media (max-width:640px){
+  .hero{padding-block:30px 40px}
+  .leak{grid-template-columns:1fr;gap:16px}
+  .leak-fig{justify-self:start}
+  .facts{grid-template-columns:1fr 1fr}
+  .fact:last-child{grid-column:1/-1;border-top:1px solid var(--rule-soft);border-inline-start:0;padding-inline-start:0}
+  .fact:nth-child(2){padding-inline-start:20px}
+  .rlist{grid-template-columns:1fr}
+  .alts-grid{grid-template-columns:1fr}
+  .alt,.alt + .alt,.alt:first-child,.alt:last-child{padding-inline:0;border-inline-start:0}
+  .alt + .alt{border-top:1px solid var(--rule)}
+  .states-grid{grid-template-columns:1fr}
+  .states-grid > section + section{border-inline-start:0;padding-inline-start:0;border-top:1px solid var(--rule);padding-top:26px;margin-top:30px}
+  .skgrid{grid-template-columns:1fr 1fr}
+  .mast-top .nav{order:3;width:100%;justify-content:space-between;border-top:1px solid var(--rule);padding-top:10px}
+  .scan .when{display:none}
+  .tabs button{padding-inline:12px}
+  .p2-wrap{margin-inline:-10px;padding:22px 16px}
+  .margin-note svg.sw{display:none}
+  .stamp{inset-inline-start:12%}
+  .bill th,.bill td{padding-inline:5px}
+  .alt.pick{padding-inline:14px;margin-inline:-14px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arr" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="sheet">
+<header class="mast">
+  <div class="mast-top">
+    <div class="brand">דוח המנויים <small>מתוך תיבות ה-Gmail שלך</small></div>
+    <nav class="nav" aria-label="ראשי">
+      <a href="#top" aria-current="page">לוח מנויים</a>
+      <a href="#accounts">חשבונות</a>
+      <a href="#out">יציאה</a>
+    </nav>
+    <div class="scan">
+      <span class="when">סריקה אחרונה: <b>היום 08:14</b></span>
+      <button class="btn spin" id="scanBtn" type="button"><svg><use href="#i-scan"/></svg><span>סרוק עכשיו</span></button>
+    </div>
+  </div>
+  <div class="folio"><span>עמוד 1 מתוך 2 · לוח מנויים</span><span>יום שני, <bdi>19.10.2026</bdi> · שער <bdi>$1 = 3.10 ₪</bdi></span></div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="main">
+    <div class="eyebrow rv" style="--d:0">הדוח של אוקטובר 2026</div>
+    <h1 class="rv" style="--d:1">החודש שילמת <bdi id="hTotal">543.55 ₪</bdi> על 10 מנויים. <span class="hl"><bdi id="hWaste">223.14 ₪</bdi> מהם</span> על דברים שכמעט לא נגעת בהם.</h1>
+
+    <div class="leak rv" style="--d:3">
+      <div class="leak-fig" aria-label="סכום לא בשימוש לחודש"><span id="bigWhole">223</span><span class="cents" id="bigCents">.14</span><span class="shk">₪</span></div>
+      <div class="leak-side">
+        <div class="k">לחודש על מנויים שסומנו "כמעט לא" או "לא בשימוש"</div>
+        <p><strong id="bigYear"><bdi>2,677.68 ₪</bdi></strong> בשנה. כרגע: <span id="bigWho"><bdi>Adobe Creative Cloud</bdi> ו-<bdi>Dropbox Plus</bdi></span>.</p>
+        <div class="leak-cta">
+          <a class="btn accent" href="#ledger" id="ctaReview">עברו על המנויים האלה <svg><use href="#i-arr"/></svg></a>
+        </div>
+        <p style="margin-top:14px;font-size:14px">הקרוב ביותר: <strong>Dropbox Plus</strong> מתחדש ב-<bdi>25.10</bdi>, בעוד 6 ימים. ביטול עד אז חוסך <bdi>37.17 ₪</bdi>.</p>
+      </div>
+    </div>
+
+    <dl class="facts rv" style="--d:4">
+      <div class="fact"><dt>עלות חודשית</dt><dd><span class="ltr" id="fMonth">543.55</span><span class="shk">₪</span></dd></div>
+      <div class="fact"><dt>עלות שנתית</dt><dd><span class="ltr" id="fYear">6,522.60</span><span class="shk">₪</span></dd></div>
+      <div class="fact"><dt>מנויים פעילים</dt><dd>10</dd></div>
+    </dl>
+  </div>
+
+  <aside class="renew rv" style="--d:5" aria-labelledby="rh">
+    <h2 id="rh">חידושים קרובים</h2>
+    <div class="sub">ב-30 הימים הבאים, מ-<bdi>19.10</bdi></div>
+    <ol class="rlist" id="rlist"></ol>
+    <div class="rtotal"><span>סך הכול צפוי</span><b><bdi id="rTot">518.63</bdi><span class="shk">₪</span></b></div>
+  </aside>
+</section>
+
+<section id="ledger" aria-labelledby="lh">
+  <div class="ledger-head">
+    <h2 class="sec-h" id="lh">פנקס המנויים<small>ממוין לפי עלות חודשית, מהיקר לזול. אפשר לשנות סימון שימוש במקום.</small></h2>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" id="tabActive" type="button">פעילים <bdi>(10)</bdi></button>
+      <button role="tab" aria-selected="false" id="tabGone" type="button">בוטלו <bdi>(2)</bdi></button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="fgrp" id="fAcct"><span>חשבון</span></div>
+    <div class="fgrp" id="fCat"><span>קטגוריה</span></div>
+  </div>
+
+  <table class="led" id="led">
+    <thead><tr>
+      <th>שירות</th><th class="hide-m">מחיר ותקופה</th><th class="n">₪ לחודש</th><th class="hide-m">חיוב אחרון</th><th>חידוש הבא</th><th class="n hide-m">חשבון Gmail</th><th>שימוש</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+    <tfoot><tr><td>סך הכול <span id="tfN"></span></td><td class="hide-m"></td><td class="tot"><bdi id="tfT"></bdi><span class="shk">₪</span></td><td class="hide-m" colspan="4"></td></tr></tfoot>
+  </table>
+</section>
+
+<!-- ============ PAGE 2 ============ -->
+<section class="p2" id="sub" aria-labelledby="ph">
+  <div class="pagebreak">עמוד 2 מתוך 2 · כרטיס מנוי</div>
+  <div class="p2-wrap" id="p2wrap">
+    <div class="stamp" aria-hidden="true">בוטל</div>
+    <div class="p2-head">
+      <div class="mono lg" style="--h:25">A</div>
+      <div>
+        <h2 id="ph">Adobe Creative Cloud</h2>
+        <p><span>ספק: Adobe</span><span>קטגוריה: עיצוב</span><span>חשבון: <span class="ltr">pinhas.k@gmail.com</span></span><span id="p2use"></span></p>
+      </div>
+      <div class="p2-big"><b><span class="ltr">185.97</span><span class="shk">₪</span></b><small>לחודש, <bdi>$59.99</bdi> חודשי. חידוש הבא <bdi>03.11.2026</bdi></small></div>
+    </div>
+
+    <div class="p2-body">
+      <div>
+        <h3>היסטוריית חיובים</h3>
+        <table class="bill">
+          <thead><tr><th>תאריך</th><th>תוכנית</th><th class="n">סכום</th><th class="hide-s">מטבע</th><th class="n">בשקלים</th></tr></thead>
+          <tbody>
+            <tr><td><bdi>03.10.2026</bdi></td><td>Creative Cloud All Apps</td><td class="n"><b>59.99</b></td><td class="hide-s">USD</td><td class="n"><b>185.97</b></td></tr>
+            <tr><td><bdi>03.09.2026</bdi></td><td>Creative Cloud All Apps</td><td class="n"><b>59.99</b></td><td class="hide-s">USD</td><td class="n"><b>187.17</b></td></tr>
+            <tr><td><bdi>03.08.2026</bdi></td><td>Creative Cloud All Apps</td><td class="n"><b>59.99</b></td><td class="hide-s">USD</td><td class="n"><b>184.77</b></td></tr>
+            <tr class="rise"><td><bdi>03.07.2026</bdi></td><td>Creative Cloud All Apps<small>לפני העלאת מחיר</small></td><td class="n"><b>54.99</b></td><td class="hide-s">USD</td><td class="n"><b>170.47</b></td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="2">ארבעה חיובים אחרונים</td><td class="n hide-s"></td><td class="hide-s"></td><td class="n"><span class="ltr">728.38</span><span class="shk">₪</span></td></tr></tfoot>
+        </table>
+        <p class="pill-note">המחיר עלה מ-<bdi>$54.99</bdi> ל-<bdi>$59.99</bdi>, <b>תוספת של 9.1%</b>, ומאז לא ירד. השינוי בשקלים בין חודש לחודש הוא רק תנודת שער.</p>
+      </div>
+
+      <div>
+        <div class="margin-note">
+          <label class="lbl" for="note">הערה בשוליים</label>
+          <textarea id="note" spellcheck="false">נרשמתי לפרויקט של הלקוח באוגוסט, הפרויקט נגמר.</textarea>
+          <svg class="sw" viewBox="0 0 20 110" aria-hidden="true"><path d="M3 4C14 12 16 24 12 38c-3 12-2 16 5 20-7 4-8 8-5 20 4 14 2 26-9 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="actions">
+          <div class="row">
+            <button class="btn solid" id="btnCancel" type="button">סמן כבוטל</button>
+            <button class="btn" id="btnNot" type="button">זה לא מנוי</button>
+          </div>
+          <a class="vend" href="https://account.adobe.com/plans" target="_blank" rel="noopener">ניהול המנוי אצל הספק <svg><use href="#i-out"/></svg></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="alts" id="alts">
+      <div class="alts-head">
+        <h3 class="sec-h" style="font-size:clamp(26px,3vw,36px);margin:0">חלופות<small style="margin-top:4px">פחות כסף לאותה עבודה, ומה מוותרים עליו בדרך</small></h3>
+        <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+          <span class="stamp-date">נבדק ב-<bdi>12.10.2026</bdi></span>
+          <button class="btn" id="findAlt" type="button"><svg><use href="#i-scan"/></svg><span>מצא חלופות</span></button>
+        </div>
+      </div>
+
+      <div class="loading" id="altLoading" role="status" aria-live="polite">
+        <div class="prog"><i></i></div>
+        <p><span>מחפשים חלופות ל-Adobe Creative Cloud. זה לוקח כחצי דקה.</span><span>אפשר להמשיך לעבוד בינתיים</span></p>
+        <div class="skgrid"><div class="sk"><i class="t"></i><i class="p"></i><i class="s"></i><i class="s2"></i><i class="s3"></i></div><div class="sk"><i class="t"></i><i class="p"></i><i class="s"></i><i class="s2"></i><i class="s3"></i></div><div class="sk"><i class="t"></i><i class="p"></i><i class="s"></i><i class="s2"></i><i class="s3"></i></div><div class="sk"><i class="t"></i><i class="p"></i><i class="s"></i><i class="s2"></i><i class="s3"></i></div></div>
+      </div>
+
+      <div class="alts-grid" id="altGrid">
+        <article class="alt">
+          <div class="tag">&nbsp;</div>
+          <h4>Affinity</h4>
+          <div class="pr"><span class="ltr">0</span><span class="shk">₪</span> <small>בסיס חינמי</small></div>
+          <div class="save">חוסך <b><bdi>185.97 ₪</bdi></b> לחודש, <bdi>2,231.64 ₪</bdi> בשנה</div>
+          <dl><dt>למה כדאי</dt><dd>עורך תמונות, וקטור ועימוד בחבילה אחת, בלי ענן ובלי מנוי.</dd>
+          <dt>על מה מוותרים</dt><dd>על הפונטים של Adobe ועל התאימות המלאה לקבצים של Adobe.</dd></dl>
+          <a class="go" href="https://affinity.serif.com" target="_blank" rel="noopener">לאתר Affinity <svg><use href="#i-out"/></svg></a>
+        </article>
+        <article class="alt pick">
+          <div class="tag">הכי פשוט לבדוק קודם</div>
+          <h4>Canva Pro</h4>
+          <div class="pr"><span class="ltr">0</span><span class="shk">₪</span> <small>תוספת, כבר משולם</small></div>
+          <div class="save">חוסך <b><bdi>185.97 ₪</bdi></b> לחודש, <bdi>2,231.64 ₪</bdi> בשנה</div>
+          <dl><dt>למה כדאי</dt><dd>כבר יש לך אותו, ומספיק לגרפיקה לרשתות חברתיות.</dd>
+          <dt>על מה מוותרים</dt><dd>על עבודה מקצועית בקבצי PSD.</dd></dl>
+          <a class="go" href="https://www.canva.com" target="_blank" rel="noopener">לאתר Canva <svg><use href="#i-out"/></svg></a>
+        </article>
+        <article class="alt">
+          <div class="tag">&nbsp;</div>
+          <h4>Photoshop בלבד</h4>
+          <div class="pr"><span class="ltr">$19.99</span> <small>לחודש</small></div>
+          <div class="save">חוסך <b><bdi>124.00 ₪</bdi></b> לחודש, <bdi>1,488.00 ₪</bdi> בשנה</div>
+          <dl><dt>למה כדאי</dt><dd>תוכנית Photography: Photoshop ו-Lightroom, אותו מנוע עריכה שאתה מכיר.</dd>
+          <dt>על מה מוותרים</dt><dd>על Illustrator ועל Premiere.</dd></dl>
+          <a class="go" href="https://www.adobe.com/creativecloud/plans.html" target="_blank" rel="noopener">לתוכניות Adobe <svg><use href="#i-out"/></svg></a>
+        </article>
+        <article class="alt">
+          <div class="tag">&nbsp;</div>
+          <h4>Figma Professional</h4>
+          <div class="pr"><span class="ltr">$16</span> <small>לחודש</small></div>
+          <div class="save">חוסך <b><bdi>136.37 ₪</bdi></b> לחודש, <bdi>1,636.44 ₪</bdi> בשנה</div>
+          <dl><dt>למה כדאי</dt><dd>הכלי הנכון לעיצוב ממשקים ולעבודת צוות על מסכים.</dd>
+          <dt>על מה מוותרים</dt><dd>על עריכת תמונות.</dd></dl>
+          <a class="go" href="https://www.figma.com/pricing" target="_blank" rel="noopener">לאתר Figma <svg><use href="#i-out"/></svg></a>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACCOUNTS + STATES ============ -->
+<section class="states" id="accounts" aria-labelledby="sh">
+  <h2 class="sec-h" id="sh">חשבונות ומצבים<small>החשבונות המחוברים, וכך נראים המסכים כשחסר מידע או כשהחיפוש רץ</small></h2>
+  <div class="states-grid">
+    <section>
+      <span class="tag-lbl">חשבונות מחוברים</span>
+      <ul class="acc-list">
+        <li><div><span class="ltr">pinhas.k@gmail.com</span><br><small>סריקה אחרונה היום 08:14</small></div><em>6</em></li>
+        <li><div><span class="ltr">family.kroyzer@gmail.com</span><br><small>סריקה אחרונה היום 08:14</small></div><em>4</em></li>
+      </ul>
+      <p style="font-size:13px;color:var(--mute);margin-top:10px">המספר הוא כמות המנויים הפעילים שנמצאו בכל תיבה.</p>
+    </section>
+    <section>
+      <span class="tag-lbl">מצב ריק</span>
+      <div class="emptybox">
+        <div class="ghost" aria-hidden="true"><i></i><i></i><i></i></div>
+        <h4>עוד לא חיברת תיבת Gmail</h4>
+        <p>נסרוק רק חשבוניות, קבלות והודעות חידוש, ונבנה לך את הפנקס. בדרך כלל זה לוקח דקה.</p>
+        <button class="btn solid" type="button">חבר Gmail</button>
+      </div>
+    </section>
+    <section class="loadspec">
+      <span class="tag-lbl">מצב טעינה</span>
+      <div class="prog" style="margin-top:6px"><i style="animation:none;transform:scaleX(.42)"></i></div>
+      <p style="font-size:14.5px;color:var(--ink-2);margin:10px 0 16px">סורקים את <span class="ltr" style="font-size:13px">family.kroyzer@gmail.com</span>, מצאנו עד כה 3 מנויים.</p>
+      <div class="sk" style="gap:12px"><i class="t"></i><i class="s"></i><i class="s2"></i><i class="s3"></i></div>
+    </section>
+  </div>
+</section>
+</main>
+
+<footer class="colophon"><span>הדוח הופק <bdi>19.10.2026</bdi>, <bdi>08:14</bdi></span><span>סכומים בדולרים מחושבים לפי <bdi>$1 = 3.10 ₪</bdi> בקירוב</span></footer>
+<a id="out"></a>
+</div>
+
+<script>
+const RATE = 3.10;
+const USE = ['לא ידוע','כל יום','לפעמים','כמעט לא','לא בשימוש'];
+const LEVEL = {'לא ידוע':-1,'כל יום':4,'לפעמים':2,'כמעט לא':1,'לא בשימוש':0};
+const P='pinhas.k@gmail.com', F='family.kroyzer@gmail.com';
+const subs = [
+ {n:'Adobe Creative Cloud',l:'A',h:25,p:'Adobe',c:'עיצוב',price:'$59.99',per:'חודשי',m:185.97,a:P,u:'כמעט לא',last:'03.10.2026',next:'03.11.2026',nd:[3,11]},
+ {n:'Netflix',l:'N',h:20,p:'Netflix',c:'סטרימינג',price:'69.90 ₪',per:'חודשי',m:69.90,a:F,u:'כל יום',last:'22.09.2026',next:'22.10.2026',nd:[22,10]},
+ {n:'ChatGPT Plus',l:'C',h:165,p:'OpenAI',c:'כלי AI',price:'$20',per:'חודשי',m:62.00,a:P,u:'כל יום',last:'28.09.2026',next:'28.10.2026',nd:[28,10]},
+ {n:'Canva Pro',l:'C',h:220,p:'Canva',c:'עיצוב',price:'54.90 ₪',per:'חודשי',m:54.90,a:P,u:'לפעמים',last:'11.10.2026',next:'11.11.2026',nd:[11,11]},
+ {n:'Google One 2TB',l:'G',h:255,p:'Google',c:'אחסון ענן',price:'39.99 ₪',per:'חודשי',m:39.99,a:F,u:'לא ידוע',last:'01.10.2026',next:'01.11.2026',nd:[1,11]},
+ {n:'Dropbox Plus',l:'D',h:250,p:'Dropbox',c:'אחסון ענן',price:'$11.99',per:'חודשי',m:37.17,a:P,u:'לא בשימוש',last:'25.09.2026',next:'25.10.2026',nd:[25,10]},
+ {n:'YouTube Premium',l:'Y',h:28,p:'Google',c:'סטרימינג',price:'33.90 ₪',per:'חודשי',m:33.90,a:F,u:'לפעמים',last:'14.10.2026',next:'14.11.2026',nd:[14,11]},
+ {n:'Microsoft 365 Personal',l:'M',h:145,p:'Microsoft',c:'תוכנה',price:'299 ₪',per:'שנתי',m:24.92,a:P,u:'לפעמים',last:'06.01.2026',next:'06.01.2027',nd:null},
+ {n:'Spotify Premium',l:'S',h:150,p:'Spotify',c:'סטרימינג',price:'23.90 ₪',per:'חודשי',m:23.90,a:F,u:'כל יום',last:'17.10.2026',next:'17.11.2026',nd:[17,11]},
+ {n:'iCloud+ 200GB',l:'i',h:240,p:'Apple',c:'אחסון ענן',price:'10.90 ₪',per:'חודשי',m:10.90,a:P,u:'לא ידוע',last:'09.10.2026',next:'09.11.2026',nd:[9,11]},
+];
+const gone = [{n:'Disney+',l:'D',when:'03.2026'},{n:'Notion Plus',l:'N',when:'06.2026'}];
+const MON = {10:'אוק׳',11:'נוב׳'};
+const fmt = (x)=>x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const $ = (s)=>document.querySelector(s);
+const isWaste = s => s.u==='כמעט לא' || s.u==='לא בשימוש';
+let state = {acct:'all',cat:'all',view:'active'};
+
+function bars(u){
+  const lv = LEVEL[u];
+  if(lv<0) return '<span class="bars q" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
+  const full = lv===0 ? 0 : lv===1 ? 1 : lv===2 ? 2 : 4;
+  return '<span class="bars" aria-hidden="true">'+[1,2,3,4].map(i=>'<i class="'+(i<=full?'f':'')+'"></i>').join('')+'</span>';
+}
+function selCls(u){ return isWaste({u})?'bad':(u==='לא ידוע'?'dim':''); }
+
+function renderFilters(){
+  const accts=[['all','הכל'],[P,P],[F,F]];
+  $('#fAcct').innerHTML='<span>חשבון</span>'+accts.map(([v,t])=>`<button class="chip" type="button" data-acct="${v}" aria-pressed="${state.acct===v}">${v==='all'?t:'<span class="ltr">'+t+'</span>'}</button>`).join('');
+  const cats=['all',...new Set(subs.map(s=>s.c))];
+  $('#fCat').innerHTML='<span>קטגוריה</span>'+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${state.cat===c}">${c==='all'?'הכל':c}</button>`).join('');
+}
+
+function renderRows(){
+  const tb=$('#tbody'); let rows;
+  if(state.view==='gone'){
+    tb.innerHTML=gone.map(g=>`<tr class="gone"><td class="c-name"><div class="who"><span class="mono">${g.l}</span><div><b>${g.n}</b><small>בוטל ${g.when}</small></div></div></td><td class="c-price hide-m">-</td><td class="c-cost cost">-</td><td class="c-last hide-m">-</td><td class="c-next">מבוטל</td><td class="c-acct hide-m">-</td><td class="c-use">-</td></tr>`).join('');
+    $('#tfN').textContent=''; $('#tfT').textContent='-';
+    return;
+  }
+  rows=subs.filter(s=>(state.acct==='all'||s.a===state.acct)&&(state.cat==='all'||s.c===state.cat));
+  const max=Math.max(...subs.map(s=>s.m));
+  tb.innerHTML=rows.length? rows.map(s=>{
+    const i=subs.indexOf(s);
+    const soon = s.nd && s.nd[1]===10;
+    return `<tr class="${isWaste(s)?'waste':''}" data-i="${i}">
+      <td class="c-name"><div class="who"><span class="mono" style="--h:${s.h}">${s.l}</span><div><b>${s.n==='Adobe Creative Cloud'?'<a href="#sub">'+s.n+'</a>':s.n}</b><small>${s.p} · ${s.c}</small></div></div></td>
+      <td class="c-price price hide-m"><span class="ltr">${s.price}</span><small>${s.per}</small></td>
+      <td class="c-cost cost"><b>${fmt(s.m)}</b><span class="shk">₪</span><i style="width:${Math.max(6,s.m/max*100)}%"></i></td>
+      <td class="c-last date hide-m"><bdi>${s.last}</bdi></td>
+      <td class="c-next date ${soon?'soon':''}"><bdi>${s.next}</bdi></td>
+      <td class="c-acct acct hide-m"><span class="ltr">${s.a}</span></td>
+      <td class="c-use"><div class="use">${bars(s.u)}<label class="usesel"><span style="position:absolute;width:1px;height:1px;overflow:hidden">שימוש ב-${s.n}</span><select data-i="${i}" class="${selCls(s.u)}">${USE.map(o=>`<option ${o===s.u?'selected':''}>${o}</option>`).join('')}</select></label></div></td>
+    </tr>`}).join('') : `<tr class="empty-rows"><td colspan="7">אין מנויים שמתאימים לסינון הזה.</td></tr>`;
+  const sum=rows.reduce((a,s)=>a+s.m,0);
+  $('#tfN').textContent='('+rows.length+')'; $('#tfT').textContent=fmt(sum);
+}
+
+function renderRenewals(){
+  const list=subs.filter(s=>s.nd).sort((a,b)=>(a.nd[1]-b.nd[1])||(a.nd[0]-b.nd[0]));
+  $('#rlist').innerHTML=list.map(s=>{
+    const usd=s.price.startsWith('$');
+    const amt=usd?`<bdi>${fmt(s.m)} ₪</bdi><small>${s.price}</small>`:`<bdi>${s.price}</bdi>`;
+    const w=isWaste(s);
+    return `<li class="${w?'warn':''}"><div class="rd">${String(s.nd[0]).padStart(2,'0')}<small>${MON[s.nd[1]]}</small></div><div class="rn">${s.n}<small>${w?'<span class="flag">'+s.u+'</span>':s.p}</small></div><div class="ra">${amt}</div></li>`}).join('');
+  $('#rTot').textContent=fmt(list.reduce((a,s)=>a+s.m,0));
+}
+
+function renderHero(){
+  const total=subs.reduce((a,s)=>a+s.m,0);
+  const w=subs.filter(isWaste), wsum=w.reduce((a,s)=>a+s.m,0);
+  $('#hTotal').textContent=fmt(total)+' ₪';
+  $('#hWaste').textContent=fmt(wsum)+' ₪';
+  const [wh,ce]=fmt(wsum).split('.');
+  $('#bigWhole').textContent=wh; $('#bigCents').textContent='.'+ce;
+  $('#bigYear').innerHTML='<bdi>'+fmt(wsum*12)+' ₪</bdi>';
+  $('#bigWho').innerHTML = w.length? w.map(s=>'<bdi>'+s.n+'</bdi>').join(' ו-') : 'אין כרגע מנויים כאלה';
+  $('#fMonth').textContent=fmt(total); $('#fYear').textContent=fmt(total*12);
+}
+
+function renderP2(){
+  const s=subs[0];
+  $('#p2use').innerHTML='שימוש: <b style="color:'+(isWaste(s)?'var(--accent)':'inherit')+'">'+s.u+'</b>';
+}
+
+function renderAll(){ renderHero(); renderRenewals(); renderRows(); renderP2(); }
+renderFilters(); renderAll();
+
+document.addEventListener('change',e=>{
+  const sel=e.target.closest('select[data-i]'); if(!sel) return;
+  subs[+sel.dataset.i].u=sel.value; renderAll();
+});
+document.addEventListener('click',e=>{
+  const ca=e.target.closest('[data-acct]'); if(ca){state.acct=ca.dataset.acct;renderFilters();renderRows();return}
+  const cc=e.target.closest('[data-cat]'); if(cc){state.cat=cc.dataset.cat;renderFilters();renderRows();return}
+});
+function setView(v){
+  state.view=v;
+  $('#tabActive').setAttribute('aria-selected',v==='active');
+  $('#tabGone').setAttribute('aria-selected',v==='gone');
+  renderRows();
+}
+$('#tabActive').onclick=()=>setView('active');
+$('#tabGone').onclick=()=>setView('gone');
+
+$('#scanBtn').onclick=function(){
+  const b=this; b.classList.add('on'); b.querySelector('span').textContent='סורקים...';
+  setTimeout(()=>{b.classList.remove('on');b.querySelector('span').textContent='סרוק עכשיו'},2200);
+};
+$('#btnCancel').onclick=function(){
+  const w=$('#p2wrap'); const on=w.classList.toggle('cancelled');
+  this.textContent=on?'בטל סימון':'סמן כבוטל';
+};
+$('#btnNot').onclick=function(){ this.textContent='הוסר מהרשימה (לדוגמה)'; this.disabled=true; this.style.opacity=.6; };
+$('#findAlt').onclick=function(){
+  const box=$('#alts'), ld=$('#altLoading');
+  box.classList.add('busy','demo'); ld.classList.add('on');
+  const bar=ld.querySelector('.prog i'); bar.style.animation='none'; void bar.offsetWidth; bar.style.animation='';
+  this.disabled=true;
+  setTimeout(()=>{box.classList.remove('busy','demo');ld.classList.remove('on');this.disabled=false},4000);
+};
+</script>
+</body>
+</html>

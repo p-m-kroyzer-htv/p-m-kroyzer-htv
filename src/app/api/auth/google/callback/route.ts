@@ -37,5 +37,5 @@ export async function GET(request: Request) {
   const expected = jar.get(STATE_COOKIE)?.value;
   jar.delete(STATE_COOKIE);
   const result = await connect(new URL(request.url), expected);
-  redirect(`/accounts?${new URLSearchParams(result)}`);
+  redirect(`/inboxes?${new URLSearchParams(result)}`);
 }

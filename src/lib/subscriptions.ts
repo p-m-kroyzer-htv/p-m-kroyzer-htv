@@ -34,10 +34,13 @@ export interface Subscription {
   period: string;
   lastAmount: number | null;
   lastCurrency: string | null;
+  lastAmountIls: number | null;
   monthlyIls: number | null;
   yearlyIls: number | null;
   lastChargeDate: string | null;
   nextRenewalDate: string | null;
+  /** True when no email named the next renewal and it was worked out from the last charge. */
+  nextRenewalEstimated: boolean;
   seats: number | null;
   accounts: string[];
   chargeCount: number;
@@ -57,6 +60,18 @@ function guessPeriod(dates: string[]): string {
   if (median >= 330 && median <= 400) return "yearly";
   if (median >= 6 && median <= 8) return "weekly";
   return "unknown";
+}
+
+const PERIOD_MONTHS: Record<string, number> = { monthly: 1, quarterly: 3, yearly: 12 };
+
+/** The last charge plus one period, when that date is still ahead. */
+function estimateRenewal(lastCharge: string | null, period: string, today: string): string | null {
+  const months = PERIOD_MONTHS[period];
+  if (!lastCharge || !months) return null;
+  const d = new Date(`${lastCharge}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  const next = d.toISOString().slice(0, 10);
+  return next >= today ? next : null;
 }
 
 function chargesOf(subscriptionId: number): Charge[] {
@@ -83,7 +98,9 @@ function summarize(row: Record<string, unknown>): Subscription {
   const factor = PER_MONTH[period];
   const monthlyIls = latest?.amount_ils != null && factor ? Math.round(latest.amount_ils * factor * 100) / 100 : null;
   const today = new Date().toISOString().slice(0, 10);
-  const nextRenewal = charges.map((c) => c.next_renewal_date).filter((d): d is string => !!d && d >= today).sort()[0] ?? null;
+  const stated = charges.map((c) => c.next_renewal_date).filter((d): d is string => !!d && d >= today).sort()[0] ?? null;
+  const estimated = stated || row.status !== "active" ? null : estimateRenewal(paid[0]?.charge_date ?? null, period, today);
+  const nextRenewal = stated ?? estimated;
 
   return {
     id: row.id as number,
@@ -98,10 +115,12 @@ function summarize(row: Record<string, unknown>): Subscription {
     period,
     lastAmount: latest?.amount ?? null,
     lastCurrency: latest?.currency ?? null,
+    lastAmountIls: latest?.amount_ils ?? null,
     monthlyIls,
     yearlyIls: monthlyIls != null ? Math.round(monthlyIls * 12) : null,
     lastChargeDate: paid[0]?.charge_date ?? null,
     nextRenewalDate: nextRenewal,
+    nextRenewalEstimated: !stated && !!estimated,
     seats: latest?.seats ?? null,
     accounts: [...new Set(charges.map((c) => c.account_email))],
     chargeCount: paid.length,
@@ -162,8 +181,10 @@ export function listAccounts() {
     .prepare(
       `SELECT a.id, a.email, a.status, a.last_scan_at, a.created_at,
               (SELECT COUNT(*) FROM emails e WHERE e.account_id = a.id) emails,
-              (SELECT COUNT(*) FROM emails e WHERE e.account_id = a.id AND e.state = 'pending') pending
-       FROM accounts a ORDER BY a.created_at`,
+              (SELECT COUNT(*) FROM emails e WHERE e.account_id = a.id AND e.state <> 'pending') read,
+              (SELECT COUNT(*) FROM emails e WHERE e.account_id = a.id AND e.state = 'pending') pending,
+              (SELECT COUNT(DISTINCT c.subscription_id) FROM charges c WHERE c.account_id = a.id) subs
+       FROM accounts a WHERE a.status <> 'disconnected' ORDER BY a.created_at`,
     )
     .all() as {
     id: number;
@@ -172,6 +193,18 @@ export function listAccounts() {
     last_scan_at: string | null;
     created_at: string;
     emails: number;
+    read: number;
     pending: number;
+    subs: number;
   }[];
+}
+
+export type Account = ReturnType<typeof listAccounts>[number];
+
+/** The latest scan of any connected mailbox, as stored (UTC, "YYYY-MM-DD HH:MM:SS"). */
+export function lastScanAt(): string | null {
+  const row = db().prepare("SELECT MAX(last_scan_at) at FROM accounts WHERE status <> 'disconnected'").get() as {
+    at: string | null;
+  };
+  return row.at;
 }

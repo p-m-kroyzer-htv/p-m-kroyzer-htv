@@ -97,3 +97,15 @@ export interface GmailMessage {
 export function getMessage(token: string, id: string) {
   return gmail<GmailMessage>(token, `/messages/${id}?format=full`);
 }
+
+/** Tell Google to drop the app's access to this mailbox. Best effort: the local token is removed either way. */
+export async function revokeToken(token: string): Promise<void> {
+  try {
+    await fetch(`https://oauth2.googleapis.com/revoke?${new URLSearchParams({ token })}`, {
+      method: "POST",
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch (err) {
+    console.error("Google revoke failed", err);
+  }
+}

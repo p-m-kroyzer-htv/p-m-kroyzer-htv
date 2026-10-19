@@ -50,9 +50,9 @@ export function progress(accountId: number): ScanProgress {
 }
 
 async function tokenFor(accountId: number): Promise<string> {
-  const account = db().prepare("SELECT refresh_token_enc FROM accounts WHERE id = ?").get(accountId) as
-    | { refresh_token_enc: string }
-    | undefined;
+  const account = db()
+    .prepare("SELECT refresh_token_enc FROM accounts WHERE id = ? AND status <> 'disconnected'")
+    .get(accountId) as { refresh_token_enc: string } | undefined;
   if (!account) throw new Error("החשבון לא נמצא");
   try {
     return await accessToken(decrypt(account.refresh_token_enc));

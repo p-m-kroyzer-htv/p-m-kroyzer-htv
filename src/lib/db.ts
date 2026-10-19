@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   refresh_token_enc TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'connected',      -- connected | needs_reconnect
+  status TEXT NOT NULL DEFAULT 'connected',      -- connected | needs_reconnect | disconnected
   last_scan_at TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
